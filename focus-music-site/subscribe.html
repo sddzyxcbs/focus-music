@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribe — FocusFlow Music</title>
+  <meta name="description" content="Subscribe to FocusFlow Music for unlimited focus music streaming. Just $29.9/year. Boost your productivity with uninterrupted ambient and lo-fi tracks." />
+  <meta name="keywords" content="focus music subscription, productivity music plan, unlimited lo-fi streaming" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://focusflowmusic.com/subscribe.html" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Subscribe — FocusFlow Music" />
+  <meta property="og:description" content="Unlimited focus music for $29.9/year. Less than $2.50/month." />
+  <meta property="og:url" content="https://focusflowmusic.com/subscribe.html" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "FocusFlow Music Annual Subscription",
+    "description": "Unlimited access to all focus music tracks for deep work and study.",
+    "offers": {
+      "@type": "Offer",
+      "price": "29.90",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/InStock"
+    }
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="site-title" aria-label="FocusFlow Music Home">🎵 FocusFlow Music</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
+    <nav id="main-nav" role="navigation" aria-label="Main navigation">
+      <a href="index.html">Home</a>
+      <a href="mylist.html">My List</a>
+      <a href="subscribe.html" class="active">Subscribe</a>
+      <a href="about.html">About Us</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ========== PAGE HERO ========== -->
+<section class="page-hero" aria-labelledby="sub-heading">
+  <h2 id="sub-heading">Go Unlimited</h2>
+  <p>One simple plan. Every track. Every day. Cancel anytime.</p>
+</section>
+
+<!-- ========== MAIN ========== -->
+<main class="subscribe-container" aria-label="Subscription plan">
+
+  <div class="plan-card">
+    <span class="plan-badge">Annual Plan</span>
+
+    <div class="plan-price" id="display-price">$29.9 <span>/ year</span></div>
+    <div class="plan-period" id="display-period">≈ $2.49 / month — billed annually</div>
+
+    <ul class="plan-features" aria-label="Plan features">
+      <li>Unlimited listening — no daily cap</li>
+      <li>Full library: 500+ focus &amp; lo-fi tracks</li>
+      <li>Personal playlist (My List)</li>
+      <li>New tracks added every week</li>
+      <li>Ad-free, distraction-free experience</li>
+      <li>Listen on any device, any browser</li>
+    </ul>
+
+    <!-- Discount Code -->
+    <div class="pay-label">Have a discount code?</div>
+    <div class="discount-row">
+      <input
+        type="text"
+        class="discount-input"
+        id="discount-input"
+        placeholder="Enter promo code"
+        aria-label="Promo / discount code"
+        maxlength="20"
+      />
+      <button class="discount-apply-btn" onclick="applyDiscount()" aria-label="Apply discount code">Apply</button>
+    </div>
+    <div class="discount-msg" id="discount-msg" aria-live="polite"></div>
+
+    <!-- Payment -->
+    <div class="pay-section">
+      <div class="pay-label">Choose payment method:</div>
+      <button class="btn-pay-card" onclick="payWithCard()" aria-label="Pay with credit card">
+        💳 Pay with Credit Card
+      </button>
+      <button class="btn-pay-paypal" onclick="payWithPaypal()" aria-label="Pay with PayPal">
+        <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg"
+             alt="PayPal" width="37" height="23" style="border-radius:3px" />
+        Pay with PayPal
+      </button>
+      <p class="secure-note">🔒 Secure checkout. Your payment is encrypted and protected.</p>
+    </div>
+  </div>
+
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="mylist.html">My List</a>
+    <a href="subscribe.html">Subscribe</a>
+    <a href="about.html">About Us</a>
+  </div>
+  <p>© 2024 FocusFlow Music. All rights reserved.</p>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+/*
+ * ============================================================
+ * DISCOUNT CODE CONFIGURATION
+ * Add / remove / edit discount codes here.
+ *
+ * Each entry:
+ *   code:    (string, case-insensitive)
+ *   type:    "percent" | "fixed"
+ *   value:   number (percent off or dollar off)
+ *   label:   friendly label shown to user
+ * ============================================================
+ */
+const DISCOUNT_CODES = [
+  { code: "FOCUS20",   type: "percent", value: 20,  label: "20% off"      },
+  { code: "WELCOME10", type: "percent", value: 10,  label: "10% off"      },
+  { code: "SAVE5",     type: "fixed",   value: 5,   label: "$5.00 off"    },
+  // Add more codes here as needed:
+  // { code: "SUMMER30", type: "percent", value: 30, label: "30% Summer Sale" },
+];
+
+const BASE_PRICE = 29.9;
+let finalPrice = BASE_PRICE;
+let appliedCode = null;
+
+function applyDiscount() {
+  const raw   = document.getElementById('discount-input').value.trim().toUpperCase();
+  const msg   = document.getElementById('discount-msg');
+  const found = DISCOUNT_CODES.find(d => d.code === raw);
+
+  if (!raw) {
+    msg.className = 'discount-msg err';
+    msg.textContent = 'Please enter a promo code.';
+    return;
+  }
+
+  if (!found) {
+    msg.className = 'discount-msg err';
+    msg.textContent = '✗ Invalid code. Please check and try again.';
+    finalPrice = BASE_PRICE;
+    appliedCode = null;
+    updatePriceDisplay(BASE_PRICE, null);
+    return;
+  }
+
+  appliedCode = found;
+  if (found.type === 'percent') {
+    finalPrice = parseFloat((BASE_PRICE * (1 - found.value / 100)).toFixed(2));
+  } else {
+    finalPrice = parseFloat(Math.max(0, BASE_PRICE - found.value).toFixed(2));
+  }
+
+  msg.className = 'discount-msg ok';
+  msg.textContent = `✓ Code applied: ${found.label}`;
+  updatePriceDisplay(finalPrice, found);
+}
+
+function updatePriceDisplay(price, code) {
+  const priceEl  = document.getElementById('display-price');
+  const periodEl = document.getElementById('display-period');
+  const monthly  = (price / 12).toFixed(2);
+
+  if (code) {
+    priceEl.innerHTML = `<s style="color:var(--text-muted);font-size:1.4rem">$${BASE_PRICE}</s> <span style="color:var(--green)">$${price}</span> <span>/ year</span>`;
+  } else {
+    priceEl.innerHTML = `$${price} <span>/ year</span>`;
+  }
+  periodEl.textContent = `≈ $${monthly} / month — billed annually`;
+}
+
+/* -------- Payment handlers (stubs — replace with real SDK) -------- */
+function payWithCard() {
+  /*
+   * TODO: Integrate Stripe Checkout
+   * 1. Install Stripe.js: <script src="https://js.stripe.com/v3/"></script>
+   * 2. Create a Stripe Checkout Session from your backend
+   * 3. Call stripe.redirectToCheckout({ sessionId }) here
+   * 
+   * Pass `finalPrice` as the amount when creating the session on your server.
+   */
+  showToast('💳 Redirecting to secure card payment… (demo mode)');
+}
+
+function payWithPaypal() {
+  /*
+   * TODO: Integrate PayPal JS SDK
+   * 1. Add: <script src="https://www.paypal.com/sdk/js?client-id=YOUR_CLIENT_ID&currency=USD"></script>
+   * 2. Render PayPal buttons with paypal.Buttons({ ... }).render('#paypal-btn-container')
+   * 3. Set amount from `finalPrice`
+   */
+  showToast('🔵 Redirecting to PayPal… (demo mode)');
+}
+
+/* -------- Toast -------- */
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+/* -------- Mobile Nav -------- */
+function toggleNav() {
+  document.getElementById('main-nav').classList.toggle('open');
+}
+</script>
+</body>
+</html>

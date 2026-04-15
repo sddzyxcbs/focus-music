@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FocusFlow Music — Focus Music for Work &amp; Study</title>
+  <meta name="description" content="Curated focus music for deep work and productive study sessions. Stream ambient, lo-fi, and instrumental tracks designed to keep you in the zone." />
+  <meta name="keywords" content="focus music, work music, study music, background music, lo-fi, ambient, productivity music, concentration music" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://focusflowmusic.com/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="FocusFlow Music — Focus Music for Work &amp; Study" />
+  <meta property="og:description" content="Curated focus music for deep work and productive study sessions." />
+  <meta property="og:url" content="https://focusflowmusic.com/" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"MusicGroup","name":"FocusFlow Music","url":"https://focusflowmusic.com/","description":"Curated focus music for work and study — ambient, lo-fi, and instrumental tracks."}
+  </script>
+  <link rel="stylesheet" href="style.css" />
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<!-- ========== HEADER ========== -->
+<header>
+  <div class="header-inner">
+    <h1 class="site-title">🎵 FocusFlow Music</h1>
+    <button class="nav-toggle" aria-label="Toggle navigation" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </button>
+    <!-- Nav + Auth wrapper -->
+    <div class="header-right">
+      <nav id="main-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html" class="active">Home</a>
+        <a href="mylist.html">My List</a>
+        <a href="subscribe.html">Subscribe</a>
+        <a href="about.html">About Us</a>
+      </nav>
+      <div id="auth-ui" class="auth-ui" aria-live="polite">
+        <button id="btn-login" class="btn-login" onclick="signInWithGoogle()" aria-label="Sign in with Google">
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="14" height="14" />
+          Sign in
+        </button>
+        <div id="user-info" class="user-info hidden">
+          <img id="user-avatar" class="user-avatar" src="" alt="" width="26" height="26" />
+          <span id="user-name" class="user-name"></span>
+          <button id="btn-logout" class="btn-logout" onclick="signOutUser()" aria-label="Sign out">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ========== HERO ========== -->
+<section class="hero" aria-labelledby="hero-heading">
+  <h2 id="hero-heading">Deep Focus. Pure Sound. Zero Distractions.</h2>
+  <p>Handpicked ambient &amp; lo-fi tracks engineered to keep your mind sharp and your workflow uninterrupted.</p>
+</section>
+
+<!-- ========== MAIN ========== -->
+<main class="section-wrap">
+
+  <!-- Free Timer Banner -->
+  <div class="free-timer-bar" role="region" aria-label="Daily free listening timer">
+    <div class="timer-icon" aria-hidden="true">⏱️</div>
+    <div class="timer-info">
+      <strong>Free Daily Listening — 1 Hour</strong>
+      <p>Your daily free quota. <a href="subscribe.html">Subscribe</a> for unlimited, ad-free access.</p>
+    </div>
+    <div id="timer-display" class="timer-display" aria-live="polite">60:00</div>
+    <div class="timer-progress-wrap">
+      <div class="timer-progress" role="progressbar" aria-label="Free time remaining">
+        <div id="timer-bar" class="timer-progress-bar" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Controls Row -->
+  <div class="controls-row">
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input id="search-input" class="search-input" type="search"
+             placeholder="Search title, artist or genre…"
+             aria-label="Search tracks" oninput="filterSongs()" />
+    </div>
+    <div class="sort-wrap">
+      <label for="sort-select">Sort by:</label>
+      <select id="sort-select" class="sort-select" onchange="sortSongs()" aria-label="Sort songs">
+        <option value="default">Default</option>
+        <option value="popular">Most Popular</option>
+        <option value="az">A → Z</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Song List -->
+  <ol class="song-list" id="song-list" aria-label="Track list"></ol>
+
+</main>
+
+<!-- ========== STICKY PLAYER ========== -->
+<div class="player-bar" role="region" aria-label="Audio player">
+  <div class="player-inner">
+    <div class="player-info">
+      <div class="player-song-title" id="p-title">No track selected</div>
+      <div class="player-song-artist" id="p-artist">— Press play to start —</div>
+    </div>
+    <div class="player-controls">
+      <button class="ctrl-btn" id="btn-shuffle" title="Shuffle (S)" onclick="toggleShuffle()" aria-label="Shuffle">🔀</button>
+      <button class="ctrl-btn" id="btn-prev"    title="Previous (←)" onclick="playPrev()"    aria-label="Previous">⏮</button>
+      <button class="ctrl-play-main" id="btn-play-main" onclick="togglePlay()" aria-label="Play / Pause">▶</button>
+      <button class="ctrl-btn" id="btn-next"    title="Next (→)"     onclick="playNext()"    aria-label="Next">⏭</button>
+      <button class="ctrl-btn" id="btn-loop"    title="Loop mode (L)" onclick="cycleLoop()"  aria-label="Loop mode">🔁</button>
+    </div>
+    <div class="progress-wrap">
+      <span class="progress-time" id="p-current">0:00</span>
+      <input type="range" class="progress-slider" id="progress-slider"
+             min="0" max="100" value="0"
+             oninput="seekTo(this.value)" aria-label="Playback progress" />
+      <span class="progress-time" id="p-total">0:00</span>
+    </div>
+    <div class="volume-wrap">
+      <span class="vol-icon" aria-hidden="true" onclick="toggleMute()" title="Mute (M)">🔊</span>
+      <input type="range" class="volume-slider" id="volume-slider"
+             min="0" max="1" step="0.02" value="0.7"
+             oninput="setVolume(this.value)" aria-label="Volume" />
+    </div>
+  </div>
+</div>
+
+<!-- ========== UPGRADE MODAL ========== -->
+<div class="modal-overlay" id="upgrade-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal-box">
+    <div class="modal-icon">⏰</div>
+    <h3 id="modal-title">Your free hour is up!</h3>
+    <p>You've used today's 1-hour free listening quota.<br/>Subscribe for <strong>unlimited</strong>, ad-free music — just <strong>$29.9 / year</strong>.</p>
+    <a href="subscribe.html" class="modal-btn-primary">🚀 Subscribe Now</a>
+    <button class="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
+  </div>
+</div>
+
+<!-- ========== FOOTER ========== -->
+<footer>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="mylist.html">My List</a>
+    <a href="subscribe.html">Subscribe</a>
+    <a href="about.html">About Us</a>
+  </div>
+  <p>© 2024 FocusFlow Music. All rights reserved. | Designed for deep work &amp; study.</p>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+/* ============================================================
+   FIREBASE INIT
+   ============================================================ */
+const firebaseConfig = {
+  apiKey: "AIzaSyANrNKpx7otJzH7KFRjLuittd-hwL4Q8yw",
+  authDomain: "focusflow-music.firebaseapp.com",
+  projectId: "focusflow-music",
+  storageBucket: "focusflow-music.firebasestorage.app",
+  messagingSenderId: "911347921304",
+  appId: "1:911347921304:web:314337e8308b2b99fb3bed"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db    = firebase.firestore();
+const auth  = firebase.auth();
+const GoogleProvider = new firebase.auth.GoogleAuthProvider();
+
+// ── Auth state ──────────────────────────────────────────────
+let currentUser = null;   // Firebase user object | null
+
+function syncAuthUI(user) {
+  const btnLogin  = document.getElementById('btn-login');
+  const userInfo  = document.getElementById('user-info');
+  const userAvatar = document.getElementById('user-avatar');
+  const userName  = document.getElementById('user-name');
+  if (user) {
+    btnLogin.classList.add('hidden');
+    userInfo.classList.remove('hidden');
+    userAvatar.src = user.photoURL || '';
+    userAvatar.alt = user.displayName || 'User';
+    userName.textContent = user.displayName || user.email || '';
+  } else {
+    btnLogin.classList.remove('hidden');
+    userInfo.classList.add('hidden');
+    userAvatar.src = '';
+    userName.textContent = '';
+  }
+}
+
+// Load My List from Firestore (user doc path: users/{uid}/list/ids)
+async function loadMyListFromFirestore() {
+  if (!currentUser) return;
+  const doc = await db.collection('users').doc(currentUser.uid).get();
+  if (doc.exists) {
+    myList = doc.data().list || [];
+  }
+}
+
+// Save My List to Firestore (array of song IDs)
+async function saveMyListToFirestore() {
+  if (!currentUser) return;
+  await db.collection('users').doc(currentUser.uid).set({ list: myList }, { merge: true });
+}
+
+// Toggle item: add to / remove from My List (cloud-aware)
+async function toggleMyList(id) {
+  if (myList.includes(id)) {
+    myList = myList.filter(x => x !== id);
+    if (popCounts[id] && popCounts[id] > 0) {
+      popCounts[id]--;
+      if (popCounts[id] === 0) delete popCounts[id];
+    }
+    showToast('Removed from My List');
+  } else {
+    myList.push(id);
+    popCounts[id] = (popCounts[id] || 0) + 1;
+    showToast('✓ Added to My List');
+  }
+  localStorage.setItem('myList',    JSON.stringify(myList));
+  localStorage.setItem('popCounts', JSON.stringify(popCounts));
+  renderSongs(getFilteredSorted());
+  if (currentUser) await saveMyListToFirestore();
+}
+
+async function signInWithGoogle() {
+  try {
+    await auth.signInWithPopup(GoogleProvider);
+  } catch(e) {
+    showToast('Login failed: ' + e.message);
+  }
+}
+
+async function signOutUser() {
+  await auth.signOut();
+  myList = JSON.parse(localStorage.getItem('myList') || '[]');
+  showToast('Signed out');
+}
+
+auth.onAuthStateChanged(async user => {
+  currentUser = user;
+  syncAuthUI(user);
+  if (user) {
+    // Merge cloud list with local (cloud wins if newer)
+    const doc = await db.collection('users').doc(user.uid).get();
+    if (doc.exists) {
+      const cloudList = doc.data().list || [];
+      // Replace local with cloud list
+      myList = cloudList;
+      localStorage.setItem('myList', JSON.stringify(myList));
+      showToast('✓ Synced from cloud');
+    }
+    renderSongs(getFilteredSorted());
+  }
+});
+
+/* ============================================================
+   SONG DATA
+   Cover color pairs: [gradient-start, gradient-end]
+   ============================================================ */
+const SONGS = [
+  { id:1,  title:"Deep Space Drift",   artist:"AstralWave",    duration:"4:12", genre:"Ambient",    cover:["#1a237e","#0d47a1"], icon:"🌌" },
+  { id:2,  title:"Morning Fog",        artist:"Lo-Fi Atelier", duration:"3:58", genre:"Lo-Fi",      cover:["#1b5e20","#2e7d32"], icon:"🌿" },
+  { id:3,  title:"Neural Pathways",    artist:"Synapse Sounds",duration:"5:34", genre:"Electronic", cover:["#4a148c","#6a1b9a"], icon:"⚡" },
+  { id:4,  title:"Quiet Library",      artist:"Bibliophonic",  duration:"4:45", genre:"Acoustic",   cover:["#33691e","#558b2f"], icon:"📚" },
+  { id:5,  title:"Alpha Waves",        artist:"BrainSync",     duration:"6:00", genre:"Binaural",   cover:["#006064","#00838f"], icon:"🧠" },
+  { id:6,  title:"Crystal Rain",       artist:"AmbientLab",    duration:"4:22", genre:"Ambient",    cover:["#01579b","#0277bd"], icon:"💧" },
+  { id:7,  title:"Cafe Window",        artist:"Lo-Fi Atelier", duration:"3:30", genre:"Lo-Fi",      cover:["#bf360c","#d84315"], icon:"☕" },
+  { id:8,  title:"Monolith",           artist:"Drone Studio",  duration:"7:18", genre:"Drone",      cover:["#212121","#424242"], icon:"🗿" },
+  { id:9,  title:"Theta State",        artist:"BrainSync",     duration:"5:55", genre:"Binaural",   cover:["#1a237e","#283593"], icon:"🌊" },
+  { id:10, title:"Dusk Protocol",      artist:"Synapse Sounds",duration:"4:08", genre:"Electronic", cover:["#880e4f","#ad1457"], icon:"🌆" },
+  { id:11, title:"Ember Thoughts",     artist:"Nocturne Keys", duration:"3:47", genre:"Piano",      cover:["#e65100","#ef6c00"], icon:"🎹" },
+  { id:12, title:"Coastal Haze",       artist:"AmbientLab",    duration:"5:12", genre:"Ambient",    cover:["#004d40","#00695c"], icon:"🌅" },
+  { id:13, title:"The Long Read",      artist:"Bibliophonic",  duration:"4:33", genre:"Acoustic",   cover:["#37474f","#546e7a"], icon:"📖" },
+  { id:14, title:"Starfield",          artist:"AstralWave",    duration:"6:20", genre:"Ambient",    cover:["#0d1b4b","#1a237e"], icon:"✨" },
+  { id:15, title:"Late Night Commit",  artist:"DevBeats",      duration:"4:01", genre:"Lo-Fi",      cover:["#1b2838","#2a475e"], icon:"💻" },
+];
+
+/* ============================================================
+   STATE
+   loopMode: 0=off  1=list-loop  2=single-loop
+   ============================================================ */
+let myList    = JSON.parse(localStorage.getItem('myList')    || '[]');
+let popCounts = JSON.parse(localStorage.getItem('popCounts') || '{}');
+let currentSongId = null;
+let isPlaying     = false;
+let loopMode      = 1;          // 0 off | 1 list | 2 single  — default: list loop
+let isShuffle     = false;
+let globalVolume  = parseFloat(localStorage.getItem('globalVolume') || '0.7');
+let isMuted       = false;
+let prevVolume    = globalVolume;
+
+// Fake progress simulation
+let fakeProgress  = 0;
+let progressTimer = null;
+let fakeDuration  = 0;
+
+// Free timer
+const TIMER_KEY   = 'freeTimerData';
+const TOTAL_SECS  = 3600;
+let timerSecondsLeft = TOTAL_SECS;
+let timerRunning  = false;
+let timerInterval = null;
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function songById(id) { return SONGS.find(s => s.id === id); }
+
+function fmtTime(secs) {
+  const m = Math.floor(secs / 60), s = Math.floor(secs % 60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+
+function durationToSecs(str) {
+  const [m, s] = str.split(':').map(Number);
+  return m * 60 + s;
+}
+
+// Current display order for prev/next navigation
+let activeSongs = [...SONGS];
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderSongs(list) {
+  activeSongs = list;
+  const ol = document.getElementById('song-list');
+  ol.innerHTML = '';
+  const maxCount = Math.max(...Object.values(popCounts), 1);
+
+  list.forEach((song, i) => {
+    const count  = popCounts[song.id] || 0;
+    const pct    = Math.round((count / maxCount) * 100);
+    const inList = myList.includes(song.id);
+    const nowPlaying = (song.id === currentSongId);
+
+    const li = document.createElement('li');
+    li.className = 'song-row' + (nowPlaying ? ' playing' : '');
+    li.dataset.id = song.id;
+    li.innerHTML = `
+      <span class="song-num">${i + 1}</span>
+      <div class="song-cover" style="background:linear-gradient(135deg,${song.cover[0]},${song.cover[1]})">
+        <span>${song.icon}</span>
+        <div class="eq-bars" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <button class="play-btn" onclick="playSong(${song.id})" aria-label="${nowPlaying && isPlaying ? 'Pause' : 'Play'} ${song.title}">
+        ${nowPlaying && isPlaying ? '⏸' : '▶'}
+      </button>
+      <div class="song-info">
+        <div class="song-title">${song.title}</div>
+        <div class="song-artist">${song.artist} · ${song.genre}</div>
+      </div>
+      <span class="song-duration">${song.duration}</span>
+      <div class="popularity" title="${count} saves">
+        <div class="pop-bar-track"><div class="pop-bar-fill" style="width:${pct}%"></div></div>
+        <span class="pop-count">♥ ${count}</span>
+      </div>
+      <button class="add-btn ${inList ? 'added' : ''}" onclick="toggleMyList(${song.id})"
+              aria-label="${inList ? 'Remove from My List' : 'Add to My List'}">
+        ${inList ? '✓ Added' : '+ My List'}
+      </button>`;
+    ol.appendChild(li);
+  });
+}
+
+/* ============================================================
+   SORT / FILTER
+   ============================================================ */
+function getFilteredSorted() {
+  const query = (document.getElementById('search-input').value || '').toLowerCase().trim();
+  const val   = document.getElementById('sort-select').value;
+  let list = SONGS.filter(s =>
+    !query ||
+    s.title.toLowerCase().includes(query) ||
+    s.artist.toLowerCase().includes(query) ||
+    s.genre.toLowerCase().includes(query)
+  );
+  if (val === 'popular') list.sort((a, b) => (popCounts[b.id]||0) - (popCounts[a.id]||0));
+  else if (val === 'az') list.sort((a, b) => a.title.localeCompare(b.title));
+  return list;
+}
+
+function sortSongs()  { renderSongs(getFilteredSorted()); }
+function filterSongs(){ sortSongs(); }
+
+/* ============================================================
+   PLAYBACK
+   ============================================================ */
+function playSong(id) {
+  if (currentSongId === id && isPlaying) { pausePlayer(); return; }
+  if (currentSongId === id && !isPlaying) { resumePlayer(); return; }
+
+  currentSongId = id;
+  isPlaying = true;
+  const song = songById(id);
+
+  document.getElementById('p-title').textContent  = song.title;
+  document.getElementById('p-artist').textContent = `${song.artist} · ${song.genre}`;
+  document.getElementById('btn-play-main').textContent = '⏸';
+
+  // Reset & start fake progress
+  fakeProgress = 0;
+  fakeDuration = durationToSecs(song.duration);
+  document.getElementById('p-total').textContent = song.duration;
+  startFakeProgress();
+  startFreeTimer();
+  renderSongs(getFilteredSorted());
+}
+
+function pausePlayer() {
+  isPlaying = false;
+  document.getElementById('btn-play-main').textContent = '▶';
+  clearInterval(progressTimer);
+  pauseFreeTimer();
+  renderSongs(getFilteredSorted());
+}
+
+function resumePlayer() {
+  isPlaying = true;
+  document.getElementById('btn-play-main').textContent = '⏸';
+  startFakeProgress();
+  startFreeTimer();
+  renderSongs(getFilteredSorted());
+}
+
+function togglePlay() {
+  if (!currentSongId) {
+    // Auto-pick first song
+    if (activeSongs.length) playSong(activeSongs[0].id);
+    return;
+  }
+  if (isPlaying) pausePlayer(); else resumePlayer();
+}
+
+/* Loop mode cycle: off → list → single → off */
+const LOOP_ICONS  = ['🔁','🔁','🔂'];
+const LOOP_LABELS = ['Loop off','List loop','Single loop'];
+function cycleLoop() {
+  loopMode = (loopMode + 1) % 3;
+  const btn = document.getElementById('btn-loop');
+  btn.classList.toggle('active', loopMode > 0);
+  btn.textContent = LOOP_ICONS[loopMode];
+  btn.title = LOOP_LABELS[loopMode];
+  showToast(LOOP_LABELS[loopMode] === 'Loop off' ? '🔁 Loop off' : `${LOOP_ICONS[loopMode]} ${LOOP_LABELS[loopMode]}`);
+}
+
+function toggleShuffle() {
+  isShuffle = !isShuffle;
+  document.getElementById('btn-shuffle').classList.toggle('active', isShuffle);
+  showToast(isShuffle ? '🔀 Shuffle on' : '🔀 Shuffle off');
+}
+
+function toggleMute() {
+  isMuted = !isMuted;
+  const icon = document.getElementById('volume-slider').parentElement.querySelector('.vol-icon');
+  if (isMuted) {
+    prevVolume = globalVolume;
+    globalVolume = 0;
+    document.getElementById('volume-slider').value = 0;
+    if (icon) icon.textContent = '🔇';
+  } else {
+    globalVolume = prevVolume || 0.7;
+    document.getElementById('volume-slider').value = globalVolume;
+    if (icon) icon.textContent = '🔊';
+    localStorage.setItem('globalVolume', globalVolume);
+  }
+}
+
+function playPrev() {
+  if (!currentSongId || activeSongs.length === 0) return;
+  const idx = activeSongs.findIndex(s => s.id === currentSongId);
+  if (idx <= 0) {
+    if (loopMode === 1) playSong(activeSongs[activeSongs.length - 1].id);
+    return;
+  }
+  playSong(activeSongs[idx - 1].id);
+}
+
+function playNext(auto = false) {
+  if (!currentSongId || activeSongs.length === 0) return;
+
+  // Single loop: replay same
+  if (auto && loopMode === 2) { playSong(currentSongId); return; }
+
+  if (isShuffle) {
+    const others = activeSongs.filter(s => s.id !== currentSongId);
+    if (others.length) playSong(others[Math.floor(Math.random() * others.length)].id);
+    return;
+  }
+
+  const idx = activeSongs.findIndex(s => s.id === currentSongId);
+  if (idx < activeSongs.length - 1) {
+    playSong(activeSongs[idx + 1].id);
+  } else if (loopMode === 1) {
+    playSong(activeSongs[0].id);   // list loop: wrap around
+  } else {
+    // end of list, stop
+    pausePlayer();
+  }
+}
+
+/* ============================================================
+   FAKE PROGRESS (no real audio file — simulates timing)
+   ============================================================ */
+function startFakeProgress() {
+  clearInterval(progressTimer);
+  progressTimer = setInterval(() => {
+    if (!isPlaying) return;
+    fakeProgress++;
+    if (fakeProgress >= fakeDuration) {
+      fakeProgress = fakeDuration;
+      clearInterval(progressTimer);
+      onTrackEnd();
+      return;
+    }
+    const pct = (fakeProgress / fakeDuration) * 100;
+    document.getElementById('progress-slider').value = pct;
+    document.getElementById('p-current').textContent = fmtTime(fakeProgress);
+  }, 1000);
+}
+
+function onTrackEnd() { playNext(true); }
+
+function seekTo(v) {
+  fakeProgress = Math.round((v / 100) * fakeDuration);
+  document.getElementById('p-current').textContent = fmtTime(fakeProgress);
+}
+
+function setVolume(v) {
+  globalVolume = parseFloat(v);
+  isMuted = (globalVolume === 0);
+  localStorage.setItem('globalVolume', globalVolume);
+  const icon = document.getElementById('volume-slider').parentElement.querySelector('.vol-icon');
+  if (icon) icon.textContent = isMuted ? '🔇' : (globalVolume < 0.4 ? '🔉' : '🔊');
+}
+
+/* ============================================================
+   FREE TIMER
+   ============================================================ */
+function loadTimer() {
+  const saved = JSON.parse(localStorage.getItem(TIMER_KEY) || 'null');
+  const today = new Date().toDateString();
+  timerSecondsLeft = (saved && saved.date === today) ? saved.secs : TOTAL_SECS;
+  if (!saved || saved.date !== today) {
+    localStorage.setItem(TIMER_KEY, JSON.stringify({ date: today, secs: TOTAL_SECS }));
+  }
+  updateTimerUI();
+}
+
+function startFreeTimer() {
+  if (timerRunning || timerSecondsLeft <= 0) return;
+  timerRunning = true;
+  timerInterval = setInterval(() => {
+    if (timerSecondsLeft <= 0) {
+      clearInterval(timerInterval); timerRunning = false;
+      updateTimerUI();
+      pausePlayer();
+      openModal();
+      return;
+    }
+    timerSecondsLeft--;
+    localStorage.setItem(TIMER_KEY, JSON.stringify({ date: new Date().toDateString(), secs: timerSecondsLeft }));
+    updateTimerUI();
+  }, 1000);
+}
+
+function pauseFreeTimer() {
+  clearInterval(timerInterval); timerRunning = false;
+}
+
+function updateTimerUI() {
+  const el  = document.getElementById('timer-display');
+  const bar = document.getElementById('timer-bar');
+  if (timerSecondsLeft <= 0) {
+    el.className = 'timer-display expired';
+    el.textContent = 'Subscribe →';
+    bar.style.width = '0%';
+  } else {
+    el.className = 'timer-display';
+    el.textContent = fmtTime(timerSecondsLeft);
+    bar.style.width = (timerSecondsLeft / TOTAL_SECS * 100) + '%';
+  }
+}
+
+/* ============================================================
+   UPGRADE MODAL
+   ============================================================ */
+function openModal()  { document.getElementById('upgrade-modal').classList.add('open'); }
+function closeModal() { document.getElementById('upgrade-modal').classList.remove('open'); }
+// Close on overlay click
+document.getElementById('upgrade-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+let toastTimeout;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+   Space=play/pause  ←=prev  →=next  S=shuffle  L=loop  M=mute
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+  switch(e.key) {
+    case ' ':        e.preventDefault(); togglePlay();    break;
+    case 'ArrowLeft':e.preventDefault(); playPrev();      break;
+    case 'ArrowRight':e.preventDefault();playNext();      break;
+    case 's': case 'S': toggleShuffle(); break;
+    case 'l': case 'L': cycleLoop();     break;
+    case 'm': case 'M': toggleMute();    break;
+  }
+});
+
+/* ============================================================
+   MOBILE NAV
+   ============================================================ */
+function toggleNav() { document.querySelector('.header-right').classList.toggle('open'); }
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.getElementById('volume-slider').value = globalVolume;
+loadTimer();
+renderSongs(SONGS);
+
+// Show keyboard shortcuts hint once
+if (!localStorage.getItem('kbHintSeen')) {
+  setTimeout(() => {
+    showToast('💡 Tip: Space=play  ← →=skip  S=shuffle  L=loop  M=mute');
+    localStorage.setItem('kbHintSeen', '1');
+  }, 1800);
+}
+</script>
+</body>
+</html>
