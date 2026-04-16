@@ -406,11 +406,16 @@ function playSong(id) {
   document.getElementById('p-artist').textContent = `${song.artist} · ${song.genre}`;
   document.getElementById('btn-play-main').textContent = '⏸';
 
-  // Reset & start fake progress
-  fakeProgress = 0;
-  fakeDuration = song.duration;
+  // Real audio playback
+  realAudio.src = song.src;
+  realAudio.volume = globalVolume;
+  realAudio.play().catch(err => {
+    console.error('Play failed:', err);
+    showToast('⚠️ Playback failed - check browser autoplay settings');
+  });
+
+  // Update duration display
   document.getElementById('p-total').textContent = fmtDur(song.duration);
-  startFakeProgress();
   startFreeTimer();
   renderSongs(getFilteredSorted());
 }
@@ -418,7 +423,7 @@ function playSong(id) {
 function pausePlayer() {
   isPlaying = false;
   document.getElementById('btn-play-main').textContent = '▶';
-  clearInterval(progressTimer);
+  realAudio.pause();
   pauseFreeTimer();
   renderSongs(getFilteredSorted());
 }
@@ -426,7 +431,7 @@ function pausePlayer() {
 function resumePlayer() {
   isPlaying = true;
   document.getElementById('btn-play-main').textContent = '⏸';
-  startFakeProgress();
+  realAudio.play().catch(err => console.error('Resume failed:', err));
   startFreeTimer();
   renderSongs(getFilteredSorted());
 }
@@ -633,6 +638,42 @@ document.addEventListener('keydown', e => {
    MOBILE NAV
    ============================================================ */
 function toggleNav() { document.querySelector('.header-right').classList.toggle('open'); }
+
+<!-- Hidden real audio player -->
+<audio id="real-audio" style="display:none" preload="auto"></audio>
+
+<script>
+/* ============================================================
+   REAL AUDIO PLAYER
+   ============================================================ */
+const realAudio = document.getElementById('real-audio');
+
+// Sync progress bar with real audio
+realAudio.addEventListener('timeupdate', () => {
+  if (realAudio.duration) {
+    const current = Math.floor(realAudio.currentTime);
+    document.getElementById('p-current').textContent = fmtDur(current);
+    const pct = (realAudio.currentTime / realAudio.duration) * 100;
+    document.getElementById('progress-bar').style.width = pct + '%';
+  }
+});
+
+// Handle track end
+realAudio.addEventListener('ended', () => {
+  if (loopMode === 2) {
+    realAudio.currentTime = 0;
+    realAudio.play();
+  } else if (loopMode === 1 || loopMode === 0) {
+    playNext();
+  }
+});
+
+// Audio load error - skip to next
+realAudio.addEventListener('error', (e) => {
+  console.error('Audio error:', e);
+  showToast('⚠️ Audio load failed, trying next...');
+  setTimeout(() => playNext(), 500);
+});
 
 /* ============================================================
    INIT
