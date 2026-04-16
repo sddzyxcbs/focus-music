@@ -268,21 +268,17 @@ auth.onAuthStateChanged(async user => {
    Cover color pairs: [gradient-start, gradient-end]
    ============================================================ */
 const SONGS = [
-  { id:1,  title:"Deep Space Drift",   artist:"AstralWave",    duration:"4:12", genre:"Ambient",    cover:["#1a237e","#0d47a1"], icon:"🌌" },
-  { id:2,  title:"Morning Fog",        artist:"Lo-Fi Atelier", duration:"3:58", genre:"Lo-Fi",      cover:["#1b5e20","#2e7d32"], icon:"🌿" },
-  { id:3,  title:"Neural Pathways",    artist:"Synapse Sounds",duration:"5:34", genre:"Electronic", cover:["#4a148c","#6a1b9a"], icon:"⚡" },
-  { id:4,  title:"Quiet Library",      artist:"Bibliophonic",  duration:"4:45", genre:"Acoustic",   cover:["#33691e","#558b2f"], icon:"📚" },
-  { id:5,  title:"Alpha Waves",        artist:"BrainSync",     duration:"6:00", genre:"Binaural",   cover:["#006064","#00838f"], icon:"🧠" },
-  { id:6,  title:"Crystal Rain",       artist:"AmbientLab",    duration:"4:22", genre:"Ambient",    cover:["#01579b","#0277bd"], icon:"💧" },
-  { id:7,  title:"Cafe Window",        artist:"Lo-Fi Atelier", duration:"3:30", genre:"Lo-Fi",      cover:["#bf360c","#d84315"], icon:"☕" },
-  { id:8,  title:"Monolith",           artist:"Drone Studio",  duration:"7:18", genre:"Drone",      cover:["#212121","#424242"], icon:"🗿" },
-  { id:9,  title:"Theta State",        artist:"BrainSync",     duration:"5:55", genre:"Binaural",   cover:["#1a237e","#283593"], icon:"🌊" },
-  { id:10, title:"Dusk Protocol",      artist:"Synapse Sounds",duration:"4:08", genre:"Electronic", cover:["#880e4f","#ad1457"], icon:"🌆" },
-  { id:11, title:"Ember Thoughts",     artist:"Nocturne Keys", duration:"3:47", genre:"Piano",      cover:["#e65100","#ef6c00"], icon:"🎹" },
-  { id:12, title:"Coastal Haze",       artist:"AmbientLab",    duration:"5:12", genre:"Ambient",    cover:["#004d40","#00695c"], icon:"🌅" },
-  { id:13, title:"The Long Read",      artist:"Bibliophonic",  duration:"4:33", genre:"Acoustic",   cover:["#37474f","#546e7a"], icon:"📖" },
-  { id:14, title:"Starfield",          artist:"AstralWave",    duration:"6:20", genre:"Ambient",    cover:["#0d1b4b","#1a237e"], icon:"✨" },
-  { id:15, title:"Late Night Commit",  artist:"DevBeats",      duration:"4:01", genre:"Lo-Fi",      cover:["#1b2838","#2a475e"], icon:"💻" },
+  { id:1,  title:"Clinical Stasis",              artist:"FocusFlow",  duration:255,  genre:"Ambient",  cover:["#0d3b6e","#1a6fa8"], icon:"🔬", src:"music/01 - Clinical Stasis.mp3" },
+  { id:2,  title:"Crystalline Lattice",            artist:"FocusFlow",  duration:232,  genre:"Ambient",  cover:["#1a1a2e","#3a3a8e"], icon:"💎", src:"music/02 - Crystalline Lattice.mp3" },
+  { id:3,  title:"Glacial Pressure again",         artist:"FocusFlow",  duration:306,  genre:"Ambient",  cover:["#2c3e50","#4a6fa5"], icon:"🧊", src:"music/03 - Glacial Pressure again.mp3" },
+  { id:4,  title:"Glacial Pressure from faraway",  artist:"FocusFlow",  duration:374,  genre:"Ambient",  cover:["#2d4a3e","#4a8b6f"], icon:"🧊", src:"music/04 - Glacial Pressure from faraway.mp3" },
+  { id:5,  title:"Glacial Pressure",              artist:"FocusFlow",  duration:388,  genre:"Ambient",  cover:["#3e2d1e","#6b4a3a"], icon:"🧊", src:"music/05 - Glacial Pressure.mp3" },
+  { id:6,  title:"Glass Clinic",                  artist:"FocusFlow",  duration:310,  genre:"Ambient",  cover:["#6d4c2a","#a0714a"], icon:"🏥", src:"music/06 - Glass Clinic.mp3" },
+  { id:7,  title:"Locked Room in the Furnace",    artist:"FocusFlow",  duration:350,  genre:"Ambient",  cover:["#6e3a1e","#c46a3a"], icon:"🔥", src:"music/07 - Locked Room in the Furnace.mp3" },
+  { id:8,  title:"Monolith at 100m",              artist:"FocusFlow",  duration:275,  genre:"Ambient",  cover:["#1e3a2e","#3a6b4f"], icon:"🗿", src:"music/08 - Monolith at 100m.mp3" },
+  { id:9,  title:"Monolith Below",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a3e","#3a4a6e"], icon:"🗿", src:"music/09 - Monolith Below.mp3" },
+  { id:10, title:"Sterile Orbit",                 artist:"FocusFlow",  duration:292,  genre:"Ambient",  cover:["#0d3b6e","#2a5fa8"], icon:"🛸", src:"music/10 - Sterile Orbit.mp3" },
+  { id:11, title:"Sterile tube",                  artist:"FocusFlow",  duration:295,  genre:"Ambient",  cover:["#1a1a3e","#3a3a8e"], icon:"🧪", src:"music/11 - Sterile tube.mp3" },
 ];
 
 /* ============================================================
@@ -321,9 +317,9 @@ function fmtTime(secs) {
   return `${m}:${s.toString().padStart(2,'0')}`;
 }
 
-function durationToSecs(str) {
-  const [m, s] = str.split(':').map(Number);
-  return m * 60 + s;
+function fmtDur(n) {
+  const m = Math.floor(n / 60), s = Math.floor(n % 60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
 }
 
 // Current display order for prev/next navigation
@@ -362,7 +358,7 @@ function renderSongs(list) {
         <div class="song-title">${song.title}</div>
         <div class="song-artist">${song.artist} · ${song.genre}</div>
       </div>
-      <span class="song-duration">${song.duration}</span>
+      <span class="song-duration">${fmtDur(song.duration)}</span>
       <div class="popularity" title="${count} saves">
         <div class="pop-bar-track"><div class="pop-bar-fill" style="width:${pct}%"></div></div>
         <span class="pop-count">♥ ${count}</span>
@@ -412,8 +408,8 @@ function playSong(id) {
 
   // Reset & start fake progress
   fakeProgress = 0;
-  fakeDuration = durationToSecs(song.duration);
-  document.getElementById('p-total').textContent = song.duration;
+  fakeDuration = song.duration;
+  document.getElementById('p-total').textContent = fmtDur(song.duration);
   startFakeProgress();
   startFreeTimer();
   renderSongs(getFilteredSorted());
