@@ -480,6 +480,7 @@ function toggleMute() {
     if (icon) icon.textContent = '🔊';
     localStorage.setItem('globalVolume', globalVolume);
   }
+  realAudio.volume = globalVolume;
 }
 
 function playPrev() {
@@ -538,13 +539,16 @@ function startFakeProgress() {
 function onTrackEnd() { playNext(true); }
 
 function seekTo(v) {
-  fakeProgress = Math.round((v / 100) * fakeDuration);
-  document.getElementById('p-current').textContent = fmtTime(fakeProgress);
+  if (!realAudio.duration) return;
+  const targetTime = (v / 100) * realAudio.duration;
+  realAudio.currentTime = targetTime;
+  document.getElementById('p-current').textContent = fmtDur(Math.floor(targetTime));
 }
 
 function setVolume(v) {
   globalVolume = parseFloat(v);
   isMuted = (globalVolume === 0);
+  realAudio.volume = globalVolume;
   localStorage.setItem('globalVolume', globalVolume);
   const icon = document.getElementById('volume-slider').parentElement.querySelector('.vol-icon');
   if (icon) icon.textContent = isMuted ? '🔇' : (globalVolume < 0.4 ? '🔉' : '🔊');
@@ -654,6 +658,7 @@ realAudio.addEventListener('timeupdate', () => {
     document.getElementById('p-current').textContent = fmtDur(current);
     const pct = (realAudio.currentTime / realAudio.duration) * 100;
     document.getElementById('progress-bar').style.width = pct + '%';
+    document.getElementById('progress-slider').value = pct;
   }
 });
 
