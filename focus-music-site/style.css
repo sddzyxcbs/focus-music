@@ -405,7 +405,14 @@ nav a:hover, nav a.active {
 
 .progress-wrap { flex: 2 1 200px; display: flex; align-items: center; gap: 10px; }
 .progress-time { color: var(--text-muted); font-size: .75rem; min-width: 36px; text-align: center; font-variant-numeric: tabular-nums; }
+.progress-slider-wrap { position: relative; flex: 1; height: 16px; display: flex; align-items: center; }
+.progress-bar {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  height: 3px; background: var(--accent-light); border-radius: 2px; pointer-events: none; z-index: 0;
+}
 .progress-slider {
+  position: relative; z-index: 1;
+  -webkit-appearance: none;
   flex: 1;
   -webkit-appearance: none;
   height: 3px;
