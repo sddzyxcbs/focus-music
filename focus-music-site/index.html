@@ -120,7 +120,7 @@
       <div class="plan-card">
         <span class="plan-badge">Annual Plan</span>
 
-        <div class="plan-price" id="display-price">$29.9 <span>/ year</span></div>
+        <div class="plan-price" id="display-price">$9.9 <span>/ year</span></div>
         <div class="plan-period" id="display-period">≈ $2.49 / month — billed annually</div>
 
         <ul class="plan-features" aria-label="Plan features">
@@ -188,13 +188,8 @@
         <div class="about-team">
           <div class="team-card">
             <div class="team-avatar">🎹</div>
-            <div class="team-name">Alex Morrow</div>
-            <div class="team-role">Founder</div>
-          </div>
-          <div class="team-card">
-            <div class="team-avatar">🎧</div>
-            <div class="team-name">Diego Reyes</div>
-            <div class="team-role">Audio Engineer</div>
+            <div class="team-name">Leon Wang</div>
+            <div class="team-role">Founder &amp; Audio Engineer</div>
           </div>
         </div>
       </article>
@@ -697,7 +692,7 @@ const DISCOUNT_CODES = [
   { code: "WELCOME10", type: "percent", value: 10,  label: "10% off" },
   { code: "SAVE5",     type: "fixed",   value: 5,   label: "$5.00 off" },
 ];
-const BASE_PRICE = 29.9;
+const BASE_PRICE = 9.9;
 let finalPrice = BASE_PRICE, appliedCode = null;
 
 function applyDiscount() {
@@ -788,7 +783,7 @@ if (!localStorage.getItem('kbHintSeen')) {
     <p>You've used today's 1-hour free listening session.<br>
        Subscribe to enjoy unlimited, uninterrupted focus music every day.</p>
     <a href="#" onclick="navigateTo('subscribe');closeModal();return false;" class="modal-btn-primary">
-      Unlock Unlimited — $29.9 / yr
+      Unlock Unlimited — $9.9 / yr
     </a>
     <button class="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
   </div>
