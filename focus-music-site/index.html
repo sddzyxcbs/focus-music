@@ -70,7 +70,10 @@
         <strong>Free Daily Listening — 1 Hour</strong>
         <p>Your daily free quota. <a href="#" onclick="navigateTo('subscribe')">Subscribe</a> for unlimited, ad-free access.</p>
       </div>
-      <div id="timer-display" class="timer-display" aria-live="polite">60:00</div>
+      <div class="timer-info">
+        <strong>Free Listening Today</strong>
+        <p>Subscribe for unlimited access, no interruptions.</p>
+      </div>
       <div class="timer-progress-wrap">
         <div class="timer-progress" role="progressbar" aria-label="Free time remaining">
           <div id="timer-bar" class="timer-progress-bar" style="width:100%"></div>
@@ -306,10 +309,12 @@ const SONGS = [
 
 const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4];
 
-const TOTAL_SECS = 3600;
-const TIMER_KEY  = 'ffTimer_v2';
-const LIST_KEY   = 'ffMyList_v2';
-const MAX_FREE    = 3600;
+const TOTAL_SECS      = 3600;
+const SOFT_PROMPT_AT  = 25 * 60;  // 25 min remaining → soft upgrade nudge
+const TIMER_KEY       = 'ffTimer_v2';
+const SOFT_KEY        = 'ffSoftPrompt_v2';
+const LIST_KEY        = 'ffMyList_v2';
+const MAX_FREE        = 3600;
 
 let myList      = JSON.parse(localStorage.getItem(LIST_KEY) || '[]');
 let currentUid  = null;
@@ -372,15 +377,28 @@ function loadTimer() {
 
 function startFreeTimer() {
   if (timerRunning || timerSecondsLeft <= 0) return;
+
+  // Check if soft prompt already shown today
+  const today     = new Date().toDateString();
+  const softKey   = localStorage.getItem(SOFT_KEY);
+  const softShown = softKey === today;
+
   timerRunning = true;
   timerInterval = setInterval(() => {
+    // Soft prompt: 25 min remaining, once per day only
+    if (!softShown && timerSecondsLeft === SOFT_PROMPT_AT) {
+      localStorage.setItem(SOFT_KEY, today);
+      openModal('soft');
+    }
+
     if (timerSecondsLeft <= 0) {
       clearInterval(timerInterval); timerRunning = false;
       updateTimerUI();
       pausePlayer();
-      openModal();
+      openModal('hard');
       return;
     }
+
     timerSecondsLeft--;
     localStorage.setItem(TIMER_KEY, JSON.stringify({ date: new Date().toDateString(), secs: timerSecondsLeft }));
     updateTimerUI();
@@ -392,16 +410,11 @@ function pauseFreeTimer() {
 }
 
 function updateTimerUI() {
-  const el  = document.getElementById('timer-display');
   const bar = document.getElementById('timer-bar');
-  if (!el || !bar) return;
+  if (!bar) return;
   if (timerSecondsLeft <= 0) {
-    el.className = 'timer-display expired';
-    el.textContent = 'Subscribe →';
     bar.style.width = '0%';
   } else {
-    el.className = 'timer-display';
-    el.textContent = fmtDur(timerSecondsLeft);
     bar.style.width = (timerSecondsLeft / TOTAL_SECS * 100) + '%';
   }
 }
@@ -409,10 +422,34 @@ function updateTimerUI() {
 /* ============================================================
    UPGRADE MODAL
    ============================================================ */
-function openModal() {
-  const modal = document.getElementById('upgrade-modal');
-  if (modal) { modal.classList.add('open'); document.body.style.overflow = 'hidden'; }
+function openModal(context) {
+  context = context || 'hard';
+  const modal    = document.getElementById('upgrade-modal');
+  const iconEl   = document.getElementById('modal-icon');
+  const titleEl  = document.getElementById('modal-title');
+  const msgEl    = document.getElementById('modal-msg');
+  const btnPri   = document.getElementById('modal-btn-primary');
+  const btnSec   = document.getElementById('modal-btn-secondary');
+  if (!modal) return;
+
+  if (context === 'soft') {
+    if (iconEl)  iconEl.textContent  = '💡';
+    if (titleEl) titleEl.textContent = 'Enjoying the music?';
+    if (msgEl)   msgEl.innerHTML     = "You've got 25 minutes of free listening left today.<br>Subscribe for uninterrupted, unlimited access anytime.";
+    if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
+    if (btnSec)  btnSec.style.display = 'inline-block';
+  } else {
+    if (iconEl)  iconEl.textContent  = '⏱️';
+    if (titleEl) titleEl.textContent = 'Your Free Session Is Over';
+    if (msgEl)   msgEl.innerHTML     = "You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.";
+    if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
+    if (btnSec)  btnSec.style.display = 'none';
+  }
+
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
+
 function closeModal() {
   const modal = document.getElementById('upgrade-modal');
   if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
@@ -778,14 +815,13 @@ if (!localStorage.getItem('kbHintSeen')) {
 <!-- ===== UPGRADE MODAL ===== -->
 <div id="upgrade-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box">
-    <div class="modal-icon">⏱️</div>
-    <h3 id="modal-title">Your Free Hour Is Up</h3>
-    <p>You've used today's 1-hour free listening session.<br>
-       Subscribe to enjoy unlimited, uninterrupted focus music every day.</p>
-    <a href="#" onclick="navigateTo('subscribe');closeModal();return false;" class="modal-btn-primary">
+    <div class="modal-icon" id="modal-icon">⏱️</div>
+    <h3 id="modal-title">Your Free Session Is Over</h3>
+    <p id="modal-msg">You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.</p>
+    <a href="#" id="modal-btn-primary" onclick="navigateTo('subscribe');closeModal();return false;" class="modal-btn-primary">
       Unlock Unlimited — $9.9 / yr
     </a>
-    <button class="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
+    <button class="modal-btn-secondary" id="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
   </div>
 </div>
 

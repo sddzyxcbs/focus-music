@@ -180,16 +180,7 @@ nav a:hover, nav a.active {
 .timer-info strong { color: var(--accent-light); font-size: .95rem; }
 .timer-info p { color: var(--text-secondary); font-size: .82rem; margin-top: 2px; }
 
-.timer-display {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--accent-light);
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 2px;
-  min-width: 90px;
-  text-align: center;
-}
-.timer-display.expired { color: var(--red); font-size: 1rem; font-weight: 600; letter-spacing: 0; }
+/* .timer-display — kept for reference, no longer rendered in HTML */
 
 .timer-progress-wrap { width: 100%; margin-top: 8px; }
 .timer-progress {
