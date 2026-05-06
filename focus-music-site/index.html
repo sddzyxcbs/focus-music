@@ -372,7 +372,12 @@ function loadTimer() {
     timerSecondsLeft = MAX_FREE;
   }
   updateTimerUI();
-  if (timerSecondsLeft > 0) startFreeTimer();
+  if (timerSecondsLeft <= 0) {
+    // Time is already expired — show hard modal immediately, block playback
+    openModal('hard');
+  } else {
+    startFreeTimer();
+  }
 }
 
 function startFreeTimer() {
@@ -459,6 +464,7 @@ function closeModal() {
    PLAYER CONTROLS
    ============================================================ */
 function playSong(id) {
+  if (timerSecondsLeft <= 0) { openModal('hard'); return; }
   if (currentSongId === id && isPlaying) { pausePlayer(); return; }
   if (currentSongId === id && !isPlaying) { resumePlayer(); return; }
   currentSongId = id;
@@ -487,6 +493,7 @@ function pausePlayer() {
 }
 
 function resumePlayer() {
+  if (timerSecondsLeft <= 0) { openModal('hard'); return; }
   isPlaying = true;
   document.getElementById('btn-play-main').textContent = '⏸';
   realAudio.play().catch(err => console.error('Resume failed:', err));
