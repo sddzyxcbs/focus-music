@@ -70,10 +70,6 @@
         <strong>Free Daily Listening — 1 Hour</strong>
         <p>Your daily free quota. <a href="#" onclick="navigateTo('subscribe')">Subscribe</a> for unlimited, ad-free access.</p>
       </div>
-      <div class="timer-info">
-        <strong>Free Listening Today</strong>
-        <p>Subscribe for unlimited access, no interruptions.</p>
-      </div>
       <div class="timer-progress-wrap">
         <div class="timer-progress" role="progressbar" aria-label="Free time remaining">
           <div id="timer-bar" class="timer-progress-bar" style="width:100%"></div>
@@ -107,7 +103,7 @@
   <div id="page-mylist" style="display:none">
     <section class="page-hero" aria-labelledby="mylist-heading">
       <h2 id="mylist-heading">My Playlist</h2>
-      <p>Your personal focus collection. Drag to reorder, click to play.</p>
+      <p>Your personal focus collection. Click to play, add or remove tracks.</p>
     </section>
     <div id="mylist-content"></div>
   </div>
@@ -124,13 +120,13 @@
         <span class="plan-badge">Annual Plan</span>
 
         <div class="plan-price" id="display-price">$9.9 <span>/ year</span></div>
-        <div class="plan-period" id="display-period">≈ $2.49 / month — billed annually</div>
+        <div class="plan-period" id="display-period">≈ $0.83 / month — billed annually</div>
 
         <ul class="plan-features" aria-label="Plan features">
           <li>Unlimited listening — no daily cap</li>
-          <li>Full library: 500+ focus &amp; lo-fi tracks</li>
+          <li>Full library: curated focus &amp; lo-fi tracks</li>
           <li>Personal playlist (My List)</li>
-          <li>New tracks added every week</li>
+          <li>New tracks added regularly</li>
           <li>Ad-free, distraction-free experience</li>
           <li>Listen on any device, any browser</li>
         </ul>
@@ -275,6 +271,10 @@ function navigateTo(page) {
   const target = document.getElementById('page-' + page);
   if (target) target.style.display = '';
 
+  // Update page title
+  const titles = { home:'Home', mylist:'My List', subscribe:'Subscribe', about:'About Us' };
+  document.title = (titles[page] || 'FocusFlow Music') + ' — FocusFlow Music';
+
   // Update nav active state
   ['home','mylist','subscribe','about'].forEach(p => {
     const a = document.getElementById('nav-' + p);
@@ -372,10 +372,9 @@ function loadTimer() {
     timerSecondsLeft = MAX_FREE;
   }
   updateTimerUI();
-  if (timerSecondsLeft <= 0) {
-    // Time is already expired — show hard modal immediately, block playback
-    openModal('hard');
-  } else {
+  // Only start timer if there's time left; don't open modal on page load
+  // Modal will appear when user actually tries to play a song (playSong/resumePlayer check this)
+  if (timerSecondsLeft > 0) {
     startFreeTimer();
   }
 }
@@ -809,6 +808,7 @@ function toggleNav() { document.querySelector('.header-right').classList.toggle(
 document.getElementById('volume-slider').value = globalVolume;
 loadTimer();
 renderSongs(SONGS);
+updatePriceDisplay(BASE_PRICE, null);
 
 // Show keyboard shortcuts hint once
 if (!localStorage.getItem('kbHintSeen')) {
