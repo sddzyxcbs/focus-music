@@ -317,10 +317,20 @@ const SONGS = [
   { id:21, title:"Glacial Logic",                 artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a4e","#3a4a7e"], icon:"🧠", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/21 - Glacial Logic.mp3" },
   { id:22, title:"White Nitrogen",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#2a3a5a","#4a5a7a"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/22 - White Nitrogen.mp3" },
   { id:23, title:"Glassy Lifeline",               artist:"FocusFlow",  duration:260,  genre:"Ambient",  cover:["#3a4a5a","#5a6a7a"], icon:"💎", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/23 - Glassy Lifeline.mp3" },
-  { id:24, title:"Life Support",                  artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#3a1a3e","#6a3a5e"], icon:"🏥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/24 - Life Support.mp3" },
+  { id:24, title:"Life Support",                  artist:"FocusFlow",  duration:205,  genre:"Ambient",  cover:["#3a1a3e","#6a3a5e"], icon:"🏥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/24 - Life Support.mp3" },
+  { id:25, title:"Heuristic Drift",              artist:"FocusFlow",  duration:204,  genre:"Ambient",  cover:["#2a3a4a","#4a5a6a"], icon:"🧭", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/25 - Heuristic Drift.mp3" },
+  { id:26, title:"Isentropic Process",           artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a2a3e","#3a4a5e"], icon:"⚙️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/26 - Isentropic Process.mp3" },
+  { id:27, title:"Kinetic Stasis",               artist:"FocusFlow",  duration:299,  genre:"Ambient",  cover:["#2a2a3e","#4a4a6e"], icon:"⚡", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/27 - Kinetic Stasis.mp3" },
+  { id:28, title:"Latency Interval",             artist:"FocusFlow",  duration:226,  genre:"Ambient",  cover:["#1a3a3e","#3a5a5e"], icon:"⏱️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/28 - Latency Interval.mp3" },
+  { id:29, title:"Lattice Vibration",            artist:"FocusFlow",  duration:178,  genre:"Ambient",  cover:["#2a3a5e","#4a5a8e"], icon:"📊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/29 - Lattice Vibration .mp3" },
+  { id:30, title:"Obdurate Core",                artist:"FocusFlow",  duration:315,  genre:"Ambient",  cover:["#3a2a2e","#6a4a4e"], icon:"💎", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/30 - Obdurate Core.mp3" },
+  { id:31, title:"Recursive Cold",              artist:"FocusFlow",  duration:252,  genre:"Ambient",  cover:["#1a2a4e","#3a4a7e"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/31 - Recursive Cold.mp3" },
+  { id:32, title:"Silicate Void",                artist:"FocusFlow",  duration:247,  genre:"Ambient",  cover:["#2a3a3a","#4a5a5a"], icon:"🕳️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/32 - Silicate Void.mp3" },
+  { id:33, title:"Thermal Inertia",              artist:"FocusFlow",  duration:337,  genre:"Ambient",  cover:["#3a2a1e","#6a4a3e"], icon:"🔥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/33 - Thermal Inertia.mp3" },
+  { id:34, title:"Vitreous Flow",               artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"], icon:"💧", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/34 - Vitreous Flow.mp3" },
 ];
 
-const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4, 7, 11, 5, 9, 6, 8, 4, 7, 10, 5, 8, 6, 9];
+const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4, 7, 11, 5, 9, 6, 8, 4, 7, 10, 5, 8, 6, 9, 7, 5, 8, 6, 7, 5, 8, 6, 9];
 
 const TOTAL_SECS      = 3600;
 const SOFT_PROMPT_AT  = 25 * 60;  // 25 min remaining → soft upgrade nudge
