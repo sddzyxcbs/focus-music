@@ -294,40 +294,40 @@ function navigateTo(page) {
    DATA
    ============================================================ */
 const SONGS = [
-  { id:1,  title:"Clinical Stasis",              artist:"FocusFlow",  duration:255,  genre:"Ambient",  cover:["#0d3b6e","#1a6fa8"], icon:"🔬", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/01 - Clinical Stasis.mp3" },
-  { id:2,  title:"Crystalline Lattice",            artist:"FocusFlow",  duration:232,  genre:"Ambient",  cover:["#1a1a2e","#3a3a8e"], icon:"💎", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/02 - Crystalline Lattice.mp3" },
-  { id:3,  title:"Glacial Pressure again",         artist:"FocusFlow",  duration:306,  genre:"Ambient",  cover:["#2c3e50","#4a6fa5"], icon:"🧊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/03 - Glacial Pressure again.mp3" },
-  { id:4,  title:"Glacial Pressure from faraway",  artist:"FocusFlow",  duration:374,  genre:"Ambient",  cover:["#2d4a3e","#4a8b6f"], icon:"🧊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/04 - Glacial Pressure from faraway.mp3" },
-  { id:5,  title:"Glacial Pressure",              artist:"FocusFlow",  duration:388,  genre:"Ambient",  cover:["#3e2d1e","#6b4a3a"], icon:"🧊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/05 - Glacial Pressure.mp3" },
-  { id:6,  title:"Glass Clinic",                  artist:"FocusFlow",  duration:310,  genre:"Ambient",  cover:["#6d4c2a","#a0714a"], icon:"🏥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/06 - Glass Clinic.mp3" },
-  { id:7,  title:"Locked Room in the Furnace",    artist:"FocusFlow",  duration:350,  genre:"Ambient",  cover:["#6e3a1e","#c46a3a"], icon:"🔥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/07 - Locked Room in the Furnace.mp3" },
-  { id:8,  title:"Monolith at 100m",              artist:"FocusFlow",  duration:275,  genre:"Ambient",  cover:["#1e3a2e","#3a6b4f"], icon:"🗿", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/08 - Monolith at 100m.mp3" },
-  { id:9,  title:"Monolith Below",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a3e","#3a4a6e"], icon:"🗿", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/09 - Monolith Below.mp3" },
-  { id:10, title:"Sterile Orbit",                 artist:"FocusFlow",  duration:292,  genre:"Ambient",  cover:["#0d3b6e","#2a5fa8"], icon:"🛸", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/10 - Sterile Orbit.mp3" },
-  { id:11, title:"Sterile tube",                  artist:"FocusFlow",  duration:295,  genre:"Ambient",  cover:["#1a1a3e","#3a3a8e"], icon:"🧪", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/11 - Sterile tube.mp3" },
-  { id:12, title:"Frozen Circuit Drift",          artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#0a2a4a","#1a5a8a"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/12 - Frozen Circuit Drift.mp3" },
-  { id:13, title:"Monolith Phase",                artist:"FocusFlow",  duration:238,  genre:"Ambient",  cover:["#1a2a3e","#3a4a6e"], icon:"🗿", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/13 - Monolith Phase.mp3" },
-  { id:14, title:"Frozen Circuit Drift (Alt)",    artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#0a2a4a","#2a4a7a"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/14 - Frozen Circuit Drift (Alt).mp3" },
-  { id:15, title:"Glacier Heartbeat",             artist:"FocusFlow",  duration:254,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"], icon:"🧊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/15 - Glacier Heartbeat.mp3" },
-  { id:16, title:"Glass Life-Support",             artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#3a1a2e","#6a3a4e"], icon:"🏥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/16 - Glass Life-Support.mp3" },
-  { id:17, title:"Glass Lifeline",                artist:"FocusFlow",  duration:224,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"], icon:"🧪", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/17 - Glass Lifeline.mp3" },
-  { id:18, title:"Synaptic Drift",                artist:"FocusFlow",  duration:272,  genre:"Ambient",  cover:["#1a1a4a","#3a3a7a"], icon:"⚡", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/18 - Synaptic Drift.mp3" },
-  { id:19, title:"Glass Pulse",                   artist:"FocusFlow",  duration:229,  genre:"Ambient",  cover:["#2a3a5a","#4a5a7a"], icon:"🫀", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/19 - Glass Pulse.mp3" },
-  { id:20, title:"Glass Respiration",             artist:"FocusFlow",  duration:238,  genre:"Ambient",  cover:["#1a3a4a","#3a5a6a"], icon:"🌬️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/20 - Glass Respiration.mp3" },
-  { id:21, title:"Glacial Logic",                 artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a4e","#3a4a7e"], icon:"🧠", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/21 - Glacial Logic.mp3" },
-  { id:22, title:"White Nitrogen",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#2a3a5a","#4a5a7a"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/22 - White Nitrogen.mp3" },
-  { id:23, title:"Glassy Lifeline",               artist:"FocusFlow",  duration:260,  genre:"Ambient",  cover:["#3a4a5a","#5a6a7a"], icon:"💎", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/23 - Glassy Lifeline.mp3" },
-  { id:24, title:"Life Support",                  artist:"FocusFlow",  duration:205,  genre:"Ambient",  cover:["#3a1a3e","#6a3a5e"], icon:"🏥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/24 - Life Support.mp3" },
-  { id:25, title:"Heuristic Drift",              artist:"FocusFlow",  duration:204,  genre:"Ambient",  cover:["#2a3a4a","#4a5a6a"], icon:"🧭", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/25 - Heuristic Drift.mp3" },
-  { id:26, title:"Isentropic Process",           artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a2a3e","#3a4a5e"], icon:"⚙️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/26 - Isentropic Process.mp3" },
-  { id:27, title:"Kinetic Stasis",               artist:"FocusFlow",  duration:299,  genre:"Ambient",  cover:["#2a2a3e","#4a4a6e"], icon:"⚡", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/27 - Kinetic Stasis.mp3" },
-  { id:28, title:"Latency Interval",             artist:"FocusFlow",  duration:226,  genre:"Ambient",  cover:["#1a3a3e","#3a5a5e"], icon:"⏱️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/28 - Latency Interval.mp3" },
-  { id:29, title:"Lattice Vibration",            artist:"FocusFlow",  duration:178,  genre:"Ambient",  cover:["#2a3a5e","#4a5a8e"], icon:"📊", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/29 - Lattice Vibration .mp3" },
-  { id:30, title:"Obdurate Core",                artist:"FocusFlow",  duration:315,  genre:"Ambient",  cover:["#3a2a2e","#6a4a4e"], icon:"💎", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/30 - Obdurate Core.mp3" },
-  { id:31, title:"Recursive Cold",              artist:"FocusFlow",  duration:252,  genre:"Ambient",  cover:["#1a2a4e","#3a4a7e"], icon:"❄️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/31 - Recursive Cold.mp3" },
-  { id:32, title:"Silicate Void",                artist:"FocusFlow",  duration:247,  genre:"Ambient",  cover:["#2a3a3a","#4a5a5a"], icon:"🕳️", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/32 - Silicate Void.mp3" },
-  { id:33, title:"Thermal Inertia",              artist:"FocusFlow",  duration:337,  genre:"Ambient",  cover:["#3a2a1e","#6a4a3e"], icon:"🔥", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/33 - Thermal Inertia.mp3" },
-  { id:34, title:"Vitreous Flow",               artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"], icon:"💧", src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/34 - Vitreous Flow.mp3" },
+  { id:1,  title:"Clinical Stasis",              artist:"FocusFlow",  duration:255,  genre:"Ambient",  cover:["#0d3b6e","#1a6fa8"], src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/01 - Clinical Stasis.mp3" },
+  { id:2,  title:"Crystalline Lattice",            artist:"FocusFlow",  duration:232,  genre:"Ambient",  cover:["#1a1a2e","#3a3a8e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/02 - Crystalline Lattice.mp3" },
+  { id:3,  title:"Glacial Pressure again",         artist:"FocusFlow",  duration:306,  genre:"Ambient",  cover:["#2c3e50","#4a6fa5"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/03 - Glacial Pressure again.mp3" },
+  { id:4,  title:"Glacial Pressure from faraway",  artist:"FocusFlow",  duration:374,  genre:"Ambient",  cover:["#2d4a3e","#4a8b6f"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/04 - Glacial Pressure from faraway.mp3" },
+  { id:5,  title:"Glacial Pressure",              artist:"FocusFlow",  duration:388,  genre:"Ambient",  cover:["#3e2d1e","#6b4a3a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/05 - Glacial Pressure.mp3" },
+  { id:6,  title:"Glass Clinic",                  artist:"FocusFlow",  duration:310,  genre:"Ambient",  cover:["#6d4c2a","#a0714a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/06 - Glass Clinic.mp3" },
+  { id:7,  title:"Locked Room in the Furnace",    artist:"FocusFlow",  duration:350,  genre:"Ambient",  cover:["#6e3a1e","#c46a3a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/07 - Locked Room in the Furnace.mp3" },
+  { id:8,  title:"Monolith at 100m",              artist:"FocusFlow",  duration:275,  genre:"Ambient",  cover:["#1e3a2e","#3a6b4f"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/08 - Monolith at 100m.mp3" },
+  { id:9,  title:"Monolith Below",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a3e","#3a4a6e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/09 - Monolith Below.mp3" },
+  { id:10, title:"Sterile Orbit",                 artist:"FocusFlow",  duration:292,  genre:"Ambient",  cover:["#0d3b6e","#2a5fa8"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/10 - Sterile Orbit.mp3" },
+  { id:11, title:"Sterile tube",                  artist:"FocusFlow",  duration:295,  genre:"Ambient",  cover:["#1a1a3e","#3a3a8e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/11 - Sterile tube.mp3" },
+  { id:12, title:"Frozen Circuit Drift",          artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#0a2a4a","#1a5a8a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/12 - Frozen Circuit Drift.mp3" },
+  { id:13, title:"Monolith Phase",                artist:"FocusFlow",  duration:238,  genre:"Ambient",  cover:["#1a2a3e","#3a4a6e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/13 - Monolith Phase.mp3" },
+  { id:14, title:"Frozen Circuit Drift (Alt)",    artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#0a2a4a","#2a4a7a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/14 - Frozen Circuit Drift (Alt).mp3" },
+  { id:15, title:"Glacier Heartbeat",             artist:"FocusFlow",  duration:254,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/15 - Glacier Heartbeat.mp3" },
+  { id:16, title:"Glass Life-Support",             artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#3a1a2e","#6a3a4e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/16 - Glass Life-Support.mp3" },
+  { id:17, title:"Glass Lifeline",                artist:"FocusFlow",  duration:224,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/17 - Glass Lifeline.mp3" },
+  { id:18, title:"Synaptic Drift",                artist:"FocusFlow",  duration:272,  genre:"Ambient",  cover:["#1a1a4a","#3a3a7a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/18 - Synaptic Drift.mp3" },
+  { id:19, title:"Glass Pulse",                   artist:"FocusFlow",  duration:229,  genre:"Ambient",  cover:["#2a3a5a","#4a5a7a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/19 - Glass Pulse.mp3" },
+  { id:20, title:"Glass Respiration",             artist:"FocusFlow",  duration:238,  genre:"Ambient",  cover:["#1a3a4a","#3a5a6a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/20 - Glass Respiration.mp3" },
+  { id:21, title:"Glacial Logic",                 artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#1e2a4e","#3a4a7e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/21 - Glacial Logic.mp3" },
+  { id:22, title:"White Nitrogen",                artist:"FocusFlow",  duration:479,  genre:"Ambient",  cover:["#2a3a5a","#4a5a7a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/22 - White Nitrogen.mp3" },
+  { id:23, title:"Glassy Lifeline",               artist:"FocusFlow",  duration:260,  genre:"Ambient",  cover:["#3a4a5a","#5a6a7a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/23 - Glassy Lifeline.mp3" },
+  { id:24, title:"Life Support",                  artist:"FocusFlow",  duration:205,  genre:"Ambient",  cover:["#3a1a3e","#6a3a5e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/24 - Life Support.mp3" },
+  { id:25, title:"Heuristic Drift",              artist:"FocusFlow",  duration:204,  genre:"Ambient",  cover:["#2a3a4a","#4a5a6a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/25 - Heuristic Drift.mp3" },
+  { id:26, title:"Isentropic Process",           artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a2a3e","#3a4a5e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/26 - Isentropic Process.mp3" },
+  { id:27, title:"Kinetic Stasis",               artist:"FocusFlow",  duration:299,  genre:"Ambient",  cover:["#2a2a3e","#4a4a6e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/27 - Kinetic Stasis.mp3" },
+  { id:28, title:"Latency Interval",             artist:"FocusFlow",  duration:226,  genre:"Ambient",  cover:["#1a3a3e","#3a5a5e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/28 - Latency Interval.mp3" },
+  { id:29, title:"Lattice Vibration",            artist:"FocusFlow",  duration:178,  genre:"Ambient",  cover:["#2a3a5e","#4a5a8e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/29 - Lattice Vibration .mp3" },
+  { id:30, title:"Obdurate Core",                artist:"FocusFlow",  duration:315,  genre:"Ambient",  cover:["#3a2a2e","#6a4a4e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/30 - Obdurate Core.mp3" },
+  { id:31, title:"Recursive Cold",              artist:"FocusFlow",  duration:252,  genre:"Ambient",  cover:["#1a2a4e","#3a4a7e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/31 - Recursive Cold.mp3" },
+  { id:32, title:"Silicate Void",                artist:"FocusFlow",  duration:247,  genre:"Ambient",  cover:["#2a3a3a","#4a5a5a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/32 - Silicate Void.mp3" },
+  { id:33, title:"Thermal Inertia",              artist:"FocusFlow",  duration:337,  genre:"Ambient",  cover:["#3a2a1e","#6a4a3e"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/33 - Thermal Inertia.mp3" },
+  { id:34, title:"Vitreous Flow",               artist:"FocusFlow",  duration:239,  genre:"Ambient",  cover:["#1a3a5a","#3a6a8a"],src:"https://pub-10c884262d484d878eef6457d2434770.r2.dev/34 - Vitreous Flow.mp3" },
 ];
 
 const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4, 7, 11, 5, 9, 6, 8, 4, 7, 10, 5, 8, 6, 9, 7, 5, 8, 6, 7, 5, 8, 6, 9];
@@ -623,7 +623,7 @@ function renderSongs(list) {
     li.innerHTML = `
       <span class="song-num">${i+1}</span>
       <div class="song-cover" style="background:linear-gradient(135deg,${c1},${c2})">
-        <span class="song-icon">${song.icon}</span>
+        
         ${nowPlaying ? `<div class="eq-anim">${eqBars}</div>` : ''}
       </div>
       <div class="play-btn" onclick="playSong(${song.id})" role="button" aria-label="Play ${song.title}" tabindex="0">${nowPlaying && isPlaying ? '⏸' : '▶'}</div>
@@ -704,7 +704,7 @@ function renderMyList() {
     li.innerHTML = `
       <span class="song-num">${i+1}</span>
       <div class="song-cover" style="background:linear-gradient(135deg,${c1},${c2})">
-        <span class="song-icon">${song.icon}</span>
+        
         ${nowPlaying ? `<div class="eq-anim">${eqBars}</div>` : ''}
       </div>
       <div class="play-btn" onclick="playSong(${song.id})" role="button" aria-label="Play ${song.title}" tabindex="0">${nowPlaying && isPlaying ? '⏸' : '▶'}</div>
