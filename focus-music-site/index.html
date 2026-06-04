@@ -622,10 +622,6 @@ function renderSongs(list) {
     li.className = 'song-row' + (nowPlaying ? ' playing' : '');
     li.innerHTML = `
       <span class="song-num">${i+1}</span>
-      <div class="song-cover" style="background:linear-gradient(135deg,${c1},${c2})">
-        
-        ${nowPlaying ? `<div class="eq-anim">${eqBars}</div>` : ''}
-      </div>
       <div class="play-btn" onclick="playSong(${song.id})" role="button" aria-label="Play ${song.title}" tabindex="0">${nowPlaying && isPlaying ? '⏸' : '▶'}</div>
       <div class="song-info">
         <div class="song-title">${song.title}</div>
@@ -703,10 +699,6 @@ function renderMyList() {
     li.className = 'song-row' + (nowPlaying ? ' playing' : '');
     li.innerHTML = `
       <span class="song-num">${i+1}</span>
-      <div class="song-cover" style="background:linear-gradient(135deg,${c1},${c2})">
-        
-        ${nowPlaying ? `<div class="eq-anim">${eqBars}</div>` : ''}
-      </div>
       <div class="play-btn" onclick="playSong(${song.id})" role="button" aria-label="Play ${song.title}" tabindex="0">${nowPlaying && isPlaying ? '⏸' : '▶'}</div>
       <div class="song-info">
         <div class="song-title">${song.title}</div>
