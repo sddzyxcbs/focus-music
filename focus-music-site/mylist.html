@@ -35,8 +35,8 @@
         <a href="about.html">About Us</a>
       </nav>
       <div id="auth-ui" class="auth-ui" aria-live="polite">
-        <button id="btn-login" class="btn-login" onclick="signInWithGoogle()" aria-label="Sign in with Google">
-          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="14" height="14" />
+        <button id="btn-login" class="btn-login" onclick="openAuthModal()" aria-label="Sign in">
+          <img src="/favicon.png" alt="" width="14" height="14" />
           Sign in
         </button>
         <div id="user-info" class="user-info hidden">
@@ -133,9 +133,9 @@ function syncAuthUI(user) {
   if (user) {
     btnLogin.classList.add('hidden');
     userInfo.classList.remove('hidden');
-    userAvatar.src  = user.photoURL || '';
+    userAvatar.src  = user.photoURL || '/favicon.png';
     userAvatar.alt  = user.displayName || 'User';
-    userName.textContent = user.displayName || user.email || '';
+    userName.textContent = user.displayName || user.email || 'User';
   } else {
     btnLogin.classList.remove('hidden');
     userInfo.classList.add('hidden');
@@ -150,7 +150,7 @@ async function saveMyListToFirestore() {
 }
 
 async function signInWithGoogle() {
-  try { await auth.signInWithPopup(GoogleProvider); }
+  try { await auth.signInWithPopup(GoogleProvider); closeAuthModal(); }
   catch(e) { showToast('Login failed: ' + e.message); }
 }
 
@@ -160,6 +160,101 @@ async function signOutUser() {
   renderMyList();
   showToast('Signed out');
 }
+
+/* ============================================================
+   AUTH MODAL
+   ============================================================ */
+let authMode = 'login';
+
+function openAuthModal() {
+  const modal = document.getElementById('auth-modal');
+  if (!modal) return;
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('auth-error').textContent = '';
+}
+function closeAuthModal() {
+  const modal = document.getElementById('auth-modal');
+  if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
+}
+function toggleAuthMode() {
+  authMode = authMode === 'login' ? 'signup' : 'login';
+  const btn = document.getElementById('auth-submit-btn');
+  const toggle = document.getElementById('auth-toggle-mode');
+  const title = document.getElementById('auth-modal-title');
+  const forgot = document.getElementById('auth-forgot-link');
+  const emailInput = document.getElementById('auth-email');
+  const passInput = document.getElementById('auth-password');
+  if (authMode === 'signup') {
+    btn.textContent = 'Create Account';
+    toggle.textContent = 'Already have an account? Sign in';
+    title.textContent = 'Create Your Account';
+    forgot.style.display = 'none';
+    passInput.setAttribute('autocomplete', 'new-password');
+  } else {
+    btn.textContent = 'Sign In';
+    toggle.textContent = 'Create an account';
+    title.textContent = 'Welcome to FocusFlow Music';
+    forgot.style.display = 'inline-block';
+    passInput.setAttribute('autocomplete', 'current-password');
+  }
+  emailInput.value = '';
+  passInput.value = '';
+  document.getElementById('auth-error').textContent = '';
+}
+async function handleAuthSubmit() {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errorEl = document.getElementById('auth-error');
+  errorEl.textContent = '';
+  if (!email || !password) { errorEl.textContent = 'Please fill in all fields.'; return; }
+  if (password.length < 6) { errorEl.textContent = 'Password must be at least 6 characters.'; return; }
+  try {
+    if (authMode === 'signup') {
+      await auth.createUserWithEmailAndPassword(email, password);
+    } else {
+      await auth.signInWithEmailAndPassword(email, password);
+    }
+    closeAuthModal();
+  } catch (e) {
+    console.error(e);
+    errorEl.textContent = friendlyAuthError(e.code) || e.message;
+  }
+}
+async function sendPasswordReset() {
+  const email = document.getElementById('auth-email').value.trim();
+  const errorEl = document.getElementById('auth-error');
+  errorEl.textContent = '';
+  if (!email) { errorEl.textContent = 'Please enter your email address.'; return; }
+  try {
+    await auth.sendPasswordResetEmail(email);
+    errorEl.textContent = 'Password reset email sent! Check your inbox.';
+    errorEl.style.color = '#4ade80';
+  } catch (e) {
+    console.error(e);
+    errorEl.textContent = friendlyAuthError(e.code) || e.message;
+    errorEl.style.color = '';
+  }
+}
+function friendlyAuthError(code) {
+  const map = {
+    'auth/invalid-email': 'Invalid email address.',
+    'auth/user-disabled': 'This account has been disabled.',
+    'auth/user-not-found': 'No account found with this email.',
+    'auth/wrong-password': 'Incorrect password.',
+    'auth/email-already-in-use': 'An account with this email already exists.',
+    'auth/weak-password': 'Password is too weak. Use at least 6 characters.',
+    'auth/too-many-requests': 'Too many attempts. Please try again later.',
+    'auth/invalid-credential': 'Invalid email or password.',
+  };
+  return map[code];
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const m = document.getElementById('auth-modal');
+    if (m && m.classList.contains('open')) closeAuthModal();
+  }
+});
 
 auth.onAuthStateChanged(async user => {
   currentUser = user;
@@ -508,5 +603,34 @@ function toggleNav() { document.querySelector('.header-right').classList.toggle(
 document.getElementById('volume-slider').value = globalVolume;
 renderMyList();
 </script>
+
+<!-- ===== AUTH MODAL ===== -->
+<div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
+  <div class="modal-box" style="max-width:400px;">
+    <button class="auth-modal-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
+    <h3 id="auth-modal-title">Welcome to FocusFlow Music</h3>
+    <button class="google-signin-btn" onclick="signInWithGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18" height="18" />
+      Continue with Google
+    </button>
+    <div class="auth-divider"><span>or</span></div>
+    <form id="auth-form" onsubmit="event.preventDefault(); handleAuthSubmit();">
+      <div class="auth-field">
+        <label for="auth-email">Email</label>
+        <input type="email" id="auth-email" required placeholder="you@example.com" autocomplete="email" />
+      </div>
+      <div class="auth-field">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" required placeholder="At least 6 characters" autocomplete="current-password" />
+      </div>
+      <button type="submit" id="auth-submit-btn" class="modal-btn-primary" style="width:100%;">Sign In</button>
+    </form>
+    <div class="auth-links">
+      <button type="button" class="modal-btn-secondary" id="auth-toggle-mode" onclick="toggleAuthMode()">Create an account</button>
+      <button type="button" class="modal-btn-secondary" id="auth-forgot-link" onclick="sendPasswordReset()">Forgot password?</button>
+    </div>
+    <p id="auth-error" class="auth-error"></p>
+  </div>
+</div>
 </body>
 </html>
