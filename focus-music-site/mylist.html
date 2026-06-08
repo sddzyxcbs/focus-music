@@ -172,34 +172,34 @@ function openAuthModal() {
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
   document.getElementById('auth-error').textContent = '';
+  switchAuthTab('login');
 }
 function closeAuthModal() {
   const modal = document.getElementById('auth-modal');
   if (modal) { modal.classList.remove('open'); document.body.style.overflow = ''; }
 }
-function toggleAuthMode() {
-  authMode = authMode === 'login' ? 'signup' : 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  const tabLogin = document.getElementById('auth-tab-login');
+  const tabSignup = document.getElementById('auth-tab-signup');
   const btn = document.getElementById('auth-submit-btn');
-  const toggle = document.getElementById('auth-toggle-mode');
-  const title = document.getElementById('auth-modal-title');
   const forgot = document.getElementById('auth-forgot-link');
-  const emailInput = document.getElementById('auth-email');
   const passInput = document.getElementById('auth-password');
   if (authMode === 'signup') {
+    tabLogin.classList.remove('active');
+    tabSignup.classList.add('active');
     btn.textContent = 'Create Account';
-    toggle.textContent = 'Already have an account? Sign in';
-    title.textContent = 'Create Your Account';
     forgot.style.display = 'none';
     passInput.setAttribute('autocomplete', 'new-password');
   } else {
+    tabSignup.classList.remove('active');
+    tabLogin.classList.add('active');
     btn.textContent = 'Sign In';
-    toggle.textContent = 'Create an account';
-    title.textContent = 'Welcome to FocusFlow Music';
     forgot.style.display = 'inline-block';
     passInput.setAttribute('autocomplete', 'current-password');
   }
-  emailInput.value = '';
-  passInput.value = '';
+  document.getElementById('auth-email').value = '';
+  document.getElementById('auth-password').value = '';
   document.getElementById('auth-error').textContent = '';
 }
 async function handleAuthSubmit() {
@@ -606,9 +606,12 @@ renderMyList();
 
 <!-- ===== AUTH MODAL ===== -->
 <div id="auth-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
-  <div class="modal-box" style="max-width:400px;">
+  <div class="modal-box" style="max-width:420px;">
     <button class="auth-modal-close" onclick="closeAuthModal()" aria-label="Close">&times;</button>
-    <h3 id="auth-modal-title">Welcome to FocusFlow Music</h3>
+    <div class="auth-tabs">
+      <button type="button" class="auth-tab active" id="auth-tab-login" onclick="switchAuthTab('login')">Sign In</button>
+      <button type="button" class="auth-tab" id="auth-tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+    </div>
     <button class="google-signin-btn" onclick="signInWithGoogle()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="18" height="18" />
       Continue with Google
@@ -626,7 +629,6 @@ renderMyList();
       <button type="submit" id="auth-submit-btn" class="modal-btn-primary" style="width:100%;">Sign In</button>
     </form>
     <div class="auth-links">
-      <button type="button" class="modal-btn-secondary" id="auth-toggle-mode" onclick="toggleAuthMode()">Create an account</button>
       <button type="button" class="modal-btn-secondary" id="auth-forgot-link" onclick="sendPasswordReset()">Forgot password?</button>
     </div>
     <p id="auth-error" class="auth-error"></p>

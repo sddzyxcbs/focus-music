@@ -800,6 +800,39 @@ footer a:hover { color: var(--accent-light); }
 .modal-btn-secondary:hover { color: var(--text-secondary); }
 
 /* ---------- Auth Modal ---------- */
+.auth-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 24px;
+}
+.auth-tab {
+  flex: 1;
+  padding: 12px 0 14px;
+  background: none; border: none;
+  color: var(--text-muted);
+  font-size: 1rem; font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  transition: color .2s;
+}
+.auth-tab::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0; right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background .2s;
+}
+.auth-tab.active {
+  color: var(--accent);
+}
+.auth-tab.active::after {
+  background: var(--accent);
+}
+.auth-tab:hover {
+  color: var(--text-secondary);
+}
+
 .auth-modal-close {
   position: absolute;
   top: 12px; right: 16px;
