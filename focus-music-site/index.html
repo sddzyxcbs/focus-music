@@ -419,9 +419,7 @@ const SONGS = [
 const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4, 7, 11, 5, 9, 6, 8, 4, 7, 10, 5, 8, 6, 9, 7, 5, 8, 6, 7, 5, 8, 6, 9, 6, 8, 5, 7, 9, 6, 8, 5, 7, 9, 6, 8, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4, 5, 6, 7, 8, 9, 10, 11, 12, 4];
 
 const TOTAL_SECS      = 3600;
-const SOFT_PROMPT_AT  = 25 * 60;  // 25 min remaining → soft upgrade nudge
 const TIMER_KEY       = 'ffTimer_v2';
-const SOFT_KEY        = 'ffSoftPrompt_v2';
 const LIST_KEY        = 'ffMyList_v2';
 const MAX_FREE        = 3600;
 
@@ -491,19 +489,8 @@ function loadTimer() {
 function startFreeTimer() {
   if (timerRunning || timerSecondsLeft <= 0) return;
 
-  // Check if soft prompt already shown today
-  const today     = new Date().toDateString();
-  const softKey   = localStorage.getItem(SOFT_KEY);
-  const softShown = softKey === today;
-
   timerRunning = true;
   timerInterval = setInterval(() => {
-    // Soft prompt: 25 min remaining, once per day only
-    if (!softShown && timerSecondsLeft === SOFT_PROMPT_AT) {
-      localStorage.setItem(SOFT_KEY, today);
-      openModal('soft');
-    }
-
     if (timerSecondsLeft <= 0) {
       clearInterval(timerInterval); timerRunning = false;
       updateTimerUI();
@@ -536,7 +523,6 @@ function updateTimerUI() {
    UPGRADE MODAL
    ============================================================ */
 function openModal(context) {
-  context = context || 'hard';
   const modal    = document.getElementById('upgrade-modal');
   const iconEl   = document.getElementById('modal-icon');
   const titleEl  = document.getElementById('modal-title');
@@ -545,19 +531,11 @@ function openModal(context) {
   const btnSec   = document.getElementById('modal-btn-secondary');
   if (!modal) return;
 
-  if (context === 'soft') {
-    if (iconEl)  iconEl.textContent  = '💡';
-    if (titleEl) titleEl.textContent = 'Enjoying the music?';
-    if (msgEl)   msgEl.innerHTML     = "You've got 25 minutes of free listening left today.<br>Subscribe for uninterrupted, unlimited access anytime.";
-    if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
-    if (btnSec)  btnSec.style.display = 'inline-block';
-  } else {
-    if (iconEl)  iconEl.textContent  = '⏱️';
-    if (titleEl) titleEl.textContent = 'Your Free Session Is Over';
-    if (msgEl)   msgEl.innerHTML     = "You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.";
-    if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
-    if (btnSec)  btnSec.style.display = 'none';
-  }
+  if (iconEl)  iconEl.textContent  = '⏱️';
+  if (titleEl) titleEl.textContent = 'Your Free Session Is Over';
+  if (msgEl)   msgEl.innerHTML     = "You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.";
+  if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
+  if (btnSec)  btnSec.style.display = 'none';
 
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
