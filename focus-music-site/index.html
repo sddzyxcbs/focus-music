@@ -476,14 +476,13 @@ function loadTimer() {
   if (stored && stored.date === today) {
     timerSecondsLeft = stored.secs;
   } else {
+    // New day: reset to full 1-hour free quota
     timerSecondsLeft = MAX_FREE;
+    localStorage.removeItem(TIMER_KEY);
   }
   updateTimerUI();
-  // Only start timer if there's time left; don't open modal on page load
-  // Modal will appear when user actually tries to play a song (playSong/resumePlayer check this)
-  if (timerSecondsLeft > 0) {
-    startFreeTimer();
-  }
+  // Do NOT auto-start the timer here.
+  // Timer only ticks when the user is actively playing music (started in playSong/resumePlayer).
 }
 
 function startFreeTimer() {
