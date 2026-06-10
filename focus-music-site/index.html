@@ -122,8 +122,8 @@
       <div class="plan-card">
         <span class="plan-badge">Annual Plan</span>
 
-        <div class="plan-price" id="display-price">$9.9 <span>/ year</span></div>
-        <div class="plan-period" id="display-period">≈ $0.83 / month — billed annually</div>
+        <div class="plan-price" id="display-price">$29.9 <span>/ year</span></div>
+        <div class="plan-period" id="display-period">≈ $2.49 / month — billed annually</div>
 
         <ul class="plan-features" aria-label="Plan features">
           <li>Unlimited listening — no daily cap</li>
@@ -533,7 +533,7 @@ function openModal(context) {
   if (iconEl)  iconEl.textContent  = '⏱️';
   if (titleEl) titleEl.textContent = 'Your Free Session Is Over';
   if (msgEl)   msgEl.innerHTML     = "You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.";
-  if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $9.9 / yr';
+  if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $29.9 / yr';
   if (btnSec)  btnSec.style.display = 'none';
 
   modal.classList.add('open');
@@ -919,7 +919,7 @@ const DISCOUNT_CODES = [
   { code: "WELCOME10", type: "percent", value: 10,  label: "10% off" },
   { code: "SAVE5",     type: "fixed",   value: 5,   label: "$5.00 off" },
 ];
-const BASE_PRICE = 9.9;
+const BASE_PRICE = 29.9;
 let finalPrice = BASE_PRICE, appliedCode = null;
 
 function applyDiscount() {
@@ -1050,7 +1050,7 @@ if (!localStorage.getItem('kbHintSeen')) {
     <h3 id="modal-title">Your Free Session Is Over</h3>
     <p id="modal-msg">You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.</p>
     <a href="#" id="modal-btn-primary" onclick="navigateTo('subscribe');closeModal();return false;" class="modal-btn-primary">
-      Unlock Unlimited — $9.9 / yr
+      Unlock Unlimited — $29.9 / yr
     </a>
     <button class="modal-btn-secondary" id="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
   </div>
