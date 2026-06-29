@@ -122,8 +122,8 @@
       <div class="plan-card">
         <span class="plan-badge">Annual Plan</span>
 
-        <div class="plan-price" id="display-price">$29.9 <span>/ year</span></div>
-        <div class="plan-period" id="display-period">≈ $2.49 / month — billed annually</div>
+        <div class="plan-price" id="display-price">$19.9 <span>/ year</span></div>
+        <div class="plan-period" id="display-period">≈ $1.66 / month — billed annually</div>
 
         <ul class="plan-features" aria-label="Plan features">
           <li>Unlimited listening — no daily cap</li>
@@ -470,6 +470,8 @@ realAudio.addEventListener('error', (e) => {
 /* ============================================================
    FREE TIMER
    ============================================================ */
+let isPremium = false; // 会员状态
+
 function loadTimer() {
   const stored = JSON.parse(localStorage.getItem(TIMER_KEY) || 'null');
   const today  = new Date().toDateString();
@@ -486,6 +488,7 @@ function loadTimer() {
 }
 
 function startFreeTimer() {
+  if (isPremium) return; // 会员免计时
   if (timerRunning || timerSecondsLeft <= 0) return;
 
   timerRunning = true;
@@ -511,6 +514,11 @@ function pauseFreeTimer() {
 function updateTimerUI() {
   const bar = document.getElementById('timer-bar');
   if (!bar) return;
+  if (isPremium) {
+    bar.style.width = '100%';
+    bar.style.background = 'var(--green)';
+    return;
+  }
   if (timerSecondsLeft <= 0) {
     bar.style.width = '0%';
   } else {
@@ -533,7 +541,7 @@ function openModal(context) {
   if (iconEl)  iconEl.textContent  = '⏱️';
   if (titleEl) titleEl.textContent = 'Your Free Session Is Over';
   if (msgEl)   msgEl.innerHTML     = "You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.";
-  if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $29.9 / yr';
+  if (btnPri)  btnPri.textContent  = 'Unlock Unlimited — $19.9 / yr';
   if (btnSec)  btnSec.style.display = 'none';
 
   modal.classList.add('open');
@@ -549,7 +557,7 @@ function closeModal() {
    PLAYER CONTROLS
    ============================================================ */
 function playSong(id) {
-  if (timerSecondsLeft <= 0) { openModal('hard'); return; }
+  if (!isPremium && timerSecondsLeft <= 0) { openModal('hard'); return; }
   if (currentSongId === id && isPlaying) { pausePlayer(); return; }
   if (currentSongId === id && !isPlaying) { resumePlayer(); return; }
   currentSongId = id;
@@ -578,7 +586,7 @@ function pausePlayer() {
 }
 
 function resumePlayer() {
-  if (timerSecondsLeft <= 0) { openModal('hard'); return; }
+  if (!isPremium && timerSecondsLeft <= 0) { openModal('hard'); return; }
   isPlaying = true;
   document.getElementById('btn-play-main').textContent = '⏸';
   realAudio.play().catch(err => console.error('Resume failed:', err));
@@ -744,6 +752,41 @@ async function syncMyListFromFirestore() {
   renderMyList();
 }
 
+/* ============================================================
+   SUBSCRIPTION STATUS
+   ============================================================ */
+async function checkSubscriptionStatus(uid, email) {
+  try {
+    // 1. Check if already activated under users/{uid}/subscription
+    const snap = await db.collection('users').doc(uid).collection('subscription').doc('status').get();
+    if (snap.exists) {
+      const data = snap.data();
+      isPremium = data.status === 'active';
+      updateTimerUI();
+      return;
+    }
+
+    // 2. Fallback: check email_payments collection (for PayPal Buy Now without custom field)
+    if (email) {
+      const emailSnap = await db.collection('email_payments').doc(email).get();
+      if (emailSnap.exists && emailSnap.data().status === 'active') {
+        isPremium = true;
+        // Cache the result under users/{uid}/subscription so next time is faster
+        await db.collection('users').doc(uid).collection('subscription').doc('status').set({
+          status: 'active',
+          source: 'paypal_email_match',
+          updatedAt: new Date().toISOString(),
+        });
+        updateTimerUI();
+        return;
+      }
+    }
+
+    isPremium = false;
+    updateTimerUI();
+  } catch(e) { console.error('Subscription check failed:', e); isPremium = false; }
+}
+
 function renderMyList() {
   const el = document.getElementById('mylist-content');
   if (!el) return;
@@ -786,9 +829,11 @@ firebase.auth().onAuthStateChanged(async user => {
     document.getElementById('user-avatar').src = user.photoURL || '/favicon.png';
     document.getElementById('user-name').textContent = user.displayName || user.email || 'User';
     await syncMyListFromFirestore();
+    await checkSubscriptionStatus(user.uid, user.email);
   } else {
     document.getElementById('btn-login').style.display = '';
     document.getElementById('user-info').classList.add('hidden');
+    isPremium = false;
     renderSongs(getFilteredSorted());
     renderMyList();
   }
@@ -919,7 +964,7 @@ const DISCOUNT_CODES = [
   { code: "WELCOME10", type: "percent", value: 10,  label: "10% off" },
   { code: "SAVE5",     type: "fixed",   value: 5,   label: "$5.00 off" },
 ];
-const BASE_PRICE = 29.9;
+const BASE_PRICE = 19.9;
 let finalPrice = BASE_PRICE, appliedCode = null;
 
 function applyDiscount() {
@@ -991,6 +1036,15 @@ function toggleNav() { document.querySelector('.header-right').classList.toggle(
    ============================================================ */
 document.getElementById('volume-slider').value = globalVolume;
 loadTimer();
+
+// Check for PayPal return URL
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('subscribed') === 'success') {
+  showToast('🎉 Subscription successful! Your premium access is being activated...');
+  // Clean URL
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
 renderSongs(SONGS);
 updatePriceDisplay(BASE_PRICE, null);
 
@@ -1050,7 +1104,7 @@ if (!localStorage.getItem('kbHintSeen')) {
     <h3 id="modal-title">Your Free Session Is Over</h3>
     <p id="modal-msg">You've used your 1-hour free listening for today.<br>Subscribe to keep the focus going, anytime.</p>
     <a href="#" id="modal-btn-primary" onclick="navigateTo('subscribe');closeModal();return false;" class="modal-btn-primary">
-      Unlock Unlimited — $29.9 / yr
+      Unlock Unlimited — $19.9 / yr
     </a>
     <button class="modal-btn-secondary" id="modal-btn-secondary" onclick="closeModal()">Maybe later</button>
   </div>

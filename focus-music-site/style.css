@@ -657,6 +657,45 @@ nav a:hover, nav a.active {
 
 .secure-note { color: var(--text-muted); font-size: .75rem; margin-top: 10px; }
 
+/* Plan selector */
+.plan-selector { display: flex; gap: 12px; margin-bottom: 20px; }
+.plan-option {
+  flex: 1;
+  background: var(--bg-dark);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 10px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color var(--transition), background var(--transition);
+  position: relative;
+}
+.plan-option.active {
+  border-color: var(--accent);
+  background: rgba(30,143,255,0.08);
+}
+.plan-option-name { font-size: .85rem; font-weight: 600; color: var(--text-primary); }
+.plan-option-price { font-size: 1.1rem; font-weight: 700; color: var(--accent); margin: 4px 0; }
+.plan-option-price span { font-size: .75rem; font-weight: 400; color: var(--text-secondary); }
+.plan-option-save {
+  position: absolute;
+  top: -8px; right: 8px;
+  background: var(--green);
+  color: #fff;
+  font-size: .65rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* PayPal form */
+.paypal-form-wrap { text-align: center; margin: 10px 0; }
+.paypal-form-wrap form { display: inline-block; }
+.paypal-form-wrap.hidden { display: none; }
+
+.login-note { color: var(--text-secondary); font-size: .82rem; margin-top: 8px; text-align: center; }
+.login-note a { color: var(--accent); text-decoration: underline; }
+
 /* ---------- About Page ---------- */
 .about-container {
   max-width: 760px;
