@@ -24,6 +24,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <!-- PayPal Subscriptions SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AecY4nSjfkC8wtOlKUuquSPU5hHmuld4DDDc-olA5Qxgt2VcuVBJTpNIcVXu4FOibNyNkH4BI8QuV70n&vault=true&intent=subscription&currency=USD"></script>
 </head>
 <body>
 
@@ -145,15 +147,10 @@
 
         <!-- Payment -->
         <div class="pay-section">
-          <div class="pay-label">Choose payment method:</div>
-          <button class="btn-pay-card" onclick="payWithCard()" aria-label="Pay with credit card">
-            💳 Pay with Credit Card
-          </button>
-          <button class="btn-pay-paypal" onclick="payWithPaypal()" aria-label="Pay with PayPal">
-            <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal" width="37" height="23" style="border-radius:3px" />
-            Pay with PayPal
-          </button>
-          <p class="secure-note">🔒 Secure checkout. Your payment is encrypted and protected.</p>
+          <div class="pay-label">Secure checkout:</div>
+          <div id="paypal-button-container" style="min-height:40px;margin-top:10px;"></div>
+          <p class="secure-note">🔒 Secure checkout via PayPal. Your payment is encrypted and protected.</p>
+          <p class="login-note" id="login-note">Please <a href="#" onclick="openAuthModal();return false;">log in</a> first to subscribe.</p>
         </div>
       </div>
     </div>
@@ -286,6 +283,13 @@ function navigateTo(page) {
 
   // If switching to mylist, re-render it
   if (page === 'mylist') renderMyList();
+
+  // If switching to subscribe, render PayPal button & update login note
+  if (page === 'subscribe') {
+    renderPayPalButton();
+    const loginNote = document.getElementById('login-note');
+    if (loginNote) loginNote.style.display = currentUid ? 'none' : 'block';
+  }
 
   // Close mobile nav
   document.querySelector('.header-right').classList.remove('open');
@@ -757,31 +761,16 @@ async function syncMyListFromFirestore() {
    ============================================================ */
 async function checkSubscriptionStatus(uid, email) {
   try {
-    // 1. Check if already activated under users/{uid}/subscription
-    const snap = await db.collection('users').doc(uid).collection('subscription').doc('status').get();
+    // Read subscription field from users/{uid} document (matches subscribe.html write path)
+    const snap = await db.collection('users').doc(uid).get();
     if (snap.exists) {
-      const data = snap.data();
-      isPremium = data.status === 'active';
-      updateTimerUI();
-      return;
-    }
-
-    // 2. Fallback: check email_payments collection (for PayPal Buy Now without custom field)
-    if (email) {
-      const emailSnap = await db.collection('email_payments').doc(email).get();
-      if (emailSnap.exists && emailSnap.data().status === 'active') {
+      const sub = snap.data().subscription;
+      if (sub && sub.status === 'active') {
         isPremium = true;
-        // Cache the result under users/{uid}/subscription so next time is faster
-        await db.collection('users').doc(uid).collection('subscription').doc('status').set({
-          status: 'active',
-          source: 'paypal_email_match',
-          updatedAt: new Date().toISOString(),
-        });
         updateTimerUI();
         return;
       }
     }
-
     isPremium = false;
     updateTimerUI();
   } catch(e) { console.error('Subscription check failed:', e); isPremium = false; }
@@ -837,6 +826,9 @@ firebase.auth().onAuthStateChanged(async user => {
     renderSongs(getFilteredSorted());
     renderMyList();
   }
+  // Update subscribe page login note visibility
+  const loginNote = document.getElementById('login-note');
+  if (loginNote) loginNote.style.display = user ? 'none' : 'block';
 });
 
 async function signInWithGoogle() {
@@ -996,8 +988,56 @@ function updatePriceDisplay(price, code) {
   periodEl.textContent = `≈ $${monthly} / month — billed annually`;
 }
 
-function payWithCard()  { showToast('💳 Redirecting to secure card payment… (demo)'); }
-function payWithPaypal(){ showToast('🔵 Redirecting to PayPal… (demo)'); }
+/* -------- PayPal Subscription Button -------- */
+const PAYPAL_PLAN_ID = 'P-4KL37540UF358182VNJBW4YI';
+
+function renderPayPalButton() {
+  const container = document.getElementById('paypal-button-container');
+  if (!container) return;
+  container.innerHTML = '';
+  if (typeof paypal === 'undefined' || !paypal.Buttons) {
+    console.warn('PayPal SDK not loaded');
+    return;
+  }
+  paypal.Buttons({
+    style: {
+      shape: 'rect',
+      color: 'gold',
+      layout: 'vertical',
+      label: 'subscribe'
+    },
+    createSubscription: function(data, actions) {
+      return actions.subscription.create({
+        plan_id: PAYPAL_PLAN_ID
+      });
+    },
+    onApprove: function(data, actions) {
+      if (currentUid) {
+        db.collection('users').doc(currentUid).set({
+          subscription: {
+            status: 'active',
+            subscriptionId: data.subscriptionID,
+            planId: PAYPAL_PLAN_ID,
+            subscribedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }
+        }, { merge: true }).then(() => {
+          isPremium = true;
+          updateTimerUI();
+          showToast('Subscription active! Enjoy unlimited listening.');
+        }).catch(err => {
+          console.error('Firebase update error:', err);
+          showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+        });
+      } else {
+        showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+      }
+    },
+    onError: function(err) {
+      console.error('PayPal error:', err);
+      showToast('Payment error. Please try again.');
+    }
+  }).render('#paypal-button-container');
+}
 
 /* ============================================================
    TOAST
