@@ -35,8 +35,8 @@
   </script>
 
   <link rel="stylesheet" href="style.css" />
-  <!-- PayPal Hosted Buttons SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=BAALH9W9_QTa3ERqoTc58aLDhaAMAJ6C-jH-IM7fTjQgk7vQ1MPQdbkjvBiH9GB1P_3E08pw-0-CRXPIgY&components=hosted-buttons&disable-funding=venmo&currency=USD"></script>
+  <!-- PayPal Subscriptions SDK -->
+  <script src="https://www.paypal.com/sdk/js?client-id=AecY4nSjfkC8wtOlKUuquSPU5hHmuld4DDDc-olA5Qxgt2VcuVBJTpNIcVXu4FOibNyNkH4BI8QuV70n&vault=true&intent=subscription&currency=USD"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -208,15 +208,52 @@ function updatePriceDisplay(price, code) {
   periodEl.textContent = `≈ $${(price / 12).toFixed(2)} / month — billed annually`;
 }
 
-/* -------- PayPal Hosted Button Render -------- */
+/* -------- PayPal Subscription Button Render -------- */
+const PAYPAL_PLAN_ID = 'P-4KL37540UF358182VNJBW4YI';
+
 function renderPayPalButton() {
-  if (typeof paypal === 'undefined' || !paypal.HostedButtons) {
+  if (typeof paypal === 'undefined' || !paypal.Buttons) {
     console.warn('PayPal SDK not loaded');
     return;
   }
-  paypal.HostedButtons({
-    hostedButtonId: "MLZESPZLSUL92"
-  }).render("#paypal-button-container");
+  paypal.Buttons({
+    style: {
+      shape: 'rect',
+      color: 'gold',
+      layout: 'vertical',
+      label: 'subscribe'
+    },
+    createSubscription: function(data, actions) {
+      return actions.subscription.create({
+        plan_id: PAYPAL_PLAN_ID
+      });
+    },
+    onApprove: function(data, actions) {
+      // data.subscriptionID = PayPal subscription ID
+      if (currentUser) {
+        const db = firebase.firestore();
+        db.collection('users').doc(currentUser.uid).set({
+          subscription: {
+            status: 'active',
+            subscriptionId: data.subscriptionID,
+            planId: PAYPAL_PLAN_ID,
+            subscribedAt: firebase.firestore.FieldValue.serverTimestamp()
+          }
+        }, { merge: true }).then(() => {
+          showToast('Subscription active! Enjoy unlimited listening.');
+        }).catch(err => {
+          console.error('Firebase update error:', err);
+          showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+        });
+      } else {
+        showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+      }
+    },
+    onError: function(err) {
+      console.error('PayPal error:', err);
+      showToast('Payment error. Please try again.');
+    }
+  }).render('#paypal-button-container');
 }
 
 // Render button when DOM is ready
