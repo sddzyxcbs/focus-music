@@ -929,23 +929,26 @@ function renderPayPalButton() {
     },
     onApprove: function(data, actions) {
       if (currentUid) {
-        db.collection('users').doc(currentUid).set({
-          subscription: {
-            status: 'active',
-            subscriptionId: data.subscriptionID,
-            planId: PAYPAL_PLAN_ID,
-            subscribedAt: firebase.firestore.FieldValue.serverTimestamp()
+        // Call server function to verify & activate subscription
+        fetch('/subscription-verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscriptionID: data.subscriptionID, uid: currentUid })
+        }).then(res => res.json()).then(result => {
+          if (result.ok) {
+            isPremium = true;
+            updateTimerUI();
+            showToast('Subscription active! Enjoy unlimited listening.');
+          } else {
+            console.error('Subscription verify failed:', result.error);
+            showToast('Payment successful! Reload to activate.');
           }
-        }, { merge: true }).then(() => {
-          isPremium = true;
-          updateTimerUI();
-          showToast('Subscription active! Enjoy unlimited listening.');
         }).catch(err => {
-          console.error('Firebase update error:', err);
-          showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+          console.error('Subscription verify error:', err);
+          showToast('Payment successful! Reload to activate.');
         });
       } else {
-        showToast('Payment successful! Subscription ID: ' + data.subscriptionID);
+        showToast('Payment successful! Please sign in to activate.');
       }
     },
     onError: function(err) {
