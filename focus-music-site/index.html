@@ -39,7 +39,6 @@
     <div class="header-right">
       <nav id="main-nav" role="navigation" aria-label="Main navigation">
         <a href="#" onclick="navigateTo('home')"    id="nav-home"    class="active">Home</a>
-        <a href="#" onclick="navigateTo('mylist')"  id="nav-mylist"  >My List</a>
         <a href="#" onclick="navigateTo('subscribe')" id="nav-subscribe">Subscribe</a>
         <a href="#" onclick="navigateTo('about')"    id="nav-about"   >About Us</a>
       </nav>
@@ -104,15 +103,6 @@
     <ol class="song-list" id="song-list" aria-label="Track list"></ol>
   </div>
 
-  <!-- ===== MY LIST PAGE ===== -->
-  <div id="page-mylist" style="display:none">
-    <section class="page-hero" aria-labelledby="mylist-heading">
-      <h2 id="mylist-heading">My Playlist</h2>
-      <p>Your personal focus collection. Click to play, add or remove tracks.</p>
-    </section>
-    <div id="mylist-content"></div>
-  </div>
-
   <!-- ===== SUBSCRIBE PAGE ===== -->
   <div id="page-subscribe" style="display:none">
     <section class="page-hero" aria-labelledby="sub-heading">
@@ -130,7 +120,6 @@
         <ul class="plan-features" aria-label="Plan features">
           <li>Unlimited listening — no daily cap</li>
           <li>Full library: curated focus &amp; lo-fi tracks</li>
-          <li>Personal playlist (My List)</li>
           <li>New tracks added regularly</li>
           <li>Ad-free, distraction-free experience</li>
           <li>Listen on any device, any browser</li>
@@ -263,7 +252,7 @@ const db = firebase.firestore();
    ============================================================ */
 function navigateTo(page) {
   // Hide all pages
-  ['home','mylist','subscribe','about'].forEach(p => {
+  ['home','subscribe','about'].forEach(p => {
     const el = document.getElementById('page-' + p);
     if (el) el.style.display = 'none';
   });
@@ -272,17 +261,14 @@ function navigateTo(page) {
   if (target) target.style.display = '';
 
   // Update page title
-  const titles = { home:'Home', mylist:'My List', subscribe:'Subscribe', about:'About Us' };
+  const titles = { home:'Home', subscribe:'Subscribe', about:'About Us' };
   document.title = (titles[page] || 'FocusFlow Music') + ' — FocusFlow Music';
 
   // Update nav active state
-  ['home','mylist','subscribe','about'].forEach(p => {
+  ['home','subscribe','about'].forEach(p => {
     const a = document.getElementById('nav-' + p);
     if (a) a.classList.toggle('active', p === page);
   });
-
-  // If switching to mylist, re-render it
-  if (page === 'mylist') renderMyList();
 
   // If switching to subscribe, render PayPal button & update login note
   if (page === 'subscribe') {
@@ -424,10 +410,8 @@ const EQ_BARS = [4, 8, 6, 12, 7, 5, 10, 6, 9, 5, 8, 4, 7, 11, 5, 9, 6, 8, 4, 7, 
 
 const TOTAL_SECS      = 3600;
 const TIMER_KEY       = 'ffTimer_v2';
-const LIST_KEY        = 'ffMyList_v2';
 const MAX_FREE        = 3600;
 
-let myList      = JSON.parse(localStorage.getItem(LIST_KEY) || '[]');
 let currentUid  = null;
 let currentSongId = null;
 let isPlaying   = false;
@@ -690,7 +674,6 @@ function renderSongs(list) {
   ol.innerHTML = '';
   list.forEach((song, i) => {
     const nowPlaying = (song.id === currentSongId);
-    const inList = myList.includes(song.id);
     const [c1, c2] = song.cover;
     const eqBars = EQ_BARS.map(h => `<div class="eq-bar" style="height:${h}px"></div>`).join('');
     const li = document.createElement('li');
@@ -702,10 +685,7 @@ function renderSongs(list) {
         <div class="song-title">${song.title}</div>
         <div class="song-artist">${song.artist} · ${song.genre}</div>
       </div>
-      <span class="song-duration">${fmtDur(song.duration)}</span>
-      <div class="add-btn ${inList ? 'added' : ''}" onclick="toggleMyList(${song.id})" role="button" aria-label="${inList ? 'Remove from My List' : 'Add to My List'}" tabindex="0">
-        ${inList ? '✓' : '+'}
-      </div>`;
+      <span class="song-duration">${fmtDur(song.duration)}</span>`;
     ol.appendChild(li);
   });
 }
@@ -724,37 +704,6 @@ function getFilteredSorted() {
 
 function sortSongs()    { renderSongs(getFilteredSorted()); }
 function filterSongs()  { sortSongs(); }
-
-/* ============================================================
-   MY LIST
-   ============================================================ */
-async function toggleMyList(id) {
-  if (myList.includes(id)) {
-    myList = myList.filter(x => x !== id);
-  } else {
-    myList.push(id);
-  }
-  localStorage.setItem(LIST_KEY, JSON.stringify(myList));
-  if (currentUid) {
-    try {
-      await db.collection('users').doc(currentUid).set({ list: myList }, { merge: true });
-    } catch(e) { console.error(e); }
-  }
-  renderSongs(getFilteredSorted());
-}
-
-async function syncMyListFromFirestore() {
-  if (!currentUid) return;
-  try {
-    const snap = await db.collection('users').doc(currentUid).get();
-    if (snap.exists) {
-      myList = snap.data().list || [];
-      localStorage.setItem(LIST_KEY, JSON.stringify(myList));
-    }
-  } catch(e) { console.error(e); }
-  renderSongs(getFilteredSorted());
-  renderMyList();
-}
 
 /* ============================================================
    SUBSCRIPTION STATUS
@@ -776,37 +725,6 @@ async function checkSubscriptionStatus(uid, email) {
   } catch(e) { console.error('Subscription check failed:', e); isPremium = false; }
 }
 
-function renderMyList() {
-  const el = document.getElementById('mylist-content');
-  if (!el) return;
-  if (!myList.length) {
-    el.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:40px">Your list is empty. Go to <a href="#" onclick="navigateTo(\'home\')">Home</a> and add some tracks.</p>';
-    return;
-  }
-  const songs = myList.map(id => songById(id)).filter(Boolean);
-  const ol = document.createElement('ol');
-  ol.className = 'song-list';
-  songs.forEach((song, i) => {
-    const nowPlaying = (song.id === currentSongId);
-    const [c1, c2] = song.cover;
-    const eqBars = EQ_BARS.map(h => `<div class="eq-bar" style="height:${h}px"></div>`).join('');
-    const li = document.createElement('li');
-    li.className = 'song-row' + (nowPlaying ? ' playing' : '');
-    li.innerHTML = `
-      <span class="song-num">${i+1}</span>
-      <div class="play-btn" onclick="playSong(${song.id})" role="button" aria-label="Play ${song.title}" tabindex="0">${nowPlaying && isPlaying ? '⏸' : '▶'}</div>
-      <div class="song-info">
-        <div class="song-title">${song.title}</div>
-        <div class="song-artist">${song.artist} · ${song.genre}</div>
-      </div>
-      <span class="song-duration">${fmtDur(song.duration)}</span>
-      <div class="add-btn added" onclick="toggleMyList(${song.id})" role="button" aria-label="Remove from My List" tabindex="0">✓</div>`;
-    ol.appendChild(li);
-  });
-  el.innerHTML = '';
-  el.appendChild(ol);
-}
-
 /* ============================================================
    FIREBASE AUTH
    ============================================================ */
@@ -817,14 +735,12 @@ firebase.auth().onAuthStateChanged(async user => {
     document.getElementById('user-info').classList.remove('hidden');
     document.getElementById('user-avatar').src = user.photoURL || '/favicon.png';
     document.getElementById('user-name').textContent = user.displayName || user.email || 'User';
-    await syncMyListFromFirestore();
     await checkSubscriptionStatus(user.uid, user.email);
   } else {
     document.getElementById('btn-login').style.display = '';
     document.getElementById('user-info').classList.add('hidden');
     isPremium = false;
     renderSongs(getFilteredSorted());
-    renderMyList();
   }
   // Update subscribe page login note visibility
   const loginNote = document.getElementById('login-note');
