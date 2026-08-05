@@ -1,0 +1,15 @@
+# WorkBuddy agent memory (local only)
+.workbuddy/
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
