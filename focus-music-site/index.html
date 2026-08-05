@@ -24,8 +24,8 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <!-- PayPal Subscriptions SDK -->
-  <script src="https://www.paypal.com/sdk/js?client-id=AecY4nSjfkC8wtOlKUuquSPU5hHmuld4DDDc-olA5Qxgt2VcuVBJTpNIcVXu4FOibNyNkH4BI8QuV70n&vault=true&intent=subscription&currency=USD"></script>
+  <!-- PayPal Subscriptions SDK (SANDBOX — for testing) -->
+  <script src="https://www.paypal.com/sdk/js?client-id=ASlGxYk4HDyZYbQeix-ZR83RijkdxjKuhiv2hDAZCp5RUjNnAD-LgM3ZfDKrKMo_yA3ayQUw6M2Wsf2A&vault=true&intent=subscription&currency=USD"></script>
 </head>
 <body>
 
@@ -905,7 +905,7 @@ function updatePriceDisplay(price, code) {
 }
 
 /* -------- PayPal Subscription Button -------- */
-const PAYPAL_PLAN_ID = 'P-4KL37540UF358182VNJBW4YI';
+const PAYPAL_PLAN_ID = 'P-9TK09819T4422273ENJZPVWI'; // SANDBOX — $0.01/yr for testing
 
 function renderPayPalButton() {
   const container = document.getElementById('paypal-button-container');

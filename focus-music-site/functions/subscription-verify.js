@@ -64,12 +64,14 @@ export async function onRequestPost(context) {
    Step 1: Get PayPal Access Token
    ============================================================ */
 async function getPayPalAccessToken(clientSecret) {
-  const clientId = 'AecY4nSjfkC8wtOlKUuquSPU5hHmuld4DDDc-olA5Qxgt2VcuVBJTpNIcVXu4FOibNyNkH4BI8QuV70n';
+  // SANDBOX — for testing. Switch back to live Client ID after testing.
+  const clientId = 'ASlGxYk4HDyZYbQeix-ZR83RijkdxjKuhiv2hDAZCp5RUjNnAD-LgM3ZfDKrKMo_yA3ayQUw6M2Wsf2A';
 
   // PayPal OAuth2: Basic Auth with client_id:client_secret
   const auth = btoa(`${clientId}:${clientSecret}`);
 
-  const res = await fetch('https://api.paypal.com/v1/oauth2/token', {
+  // SANDBOX — for testing. Switch back to https://api.paypal.com after testing.
+  const res = await fetch('https://api-m.sandbox.paypal.com/v1/oauth2/token', {
     method: 'POST',
     headers: {
       Authorization: `Basic ${auth}`,
@@ -89,7 +91,8 @@ async function getPayPalAccessToken(clientSecret) {
    Step 2: Get Subscription Details from PayPal
    ============================================================ */
 async function getPayPalSubscription(subscriptionID, accessToken) {
-  const res = await fetch(`https://api.paypal.com/v1/billing/subscriptions/${subscriptionID}`, {
+  // SANDBOX — for testing. Switch back to https://api.paypal.com after testing.
+  const res = await fetch(`https://api-m.sandbox.paypal.com/v1/billing/subscriptions/${subscriptionID}`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
