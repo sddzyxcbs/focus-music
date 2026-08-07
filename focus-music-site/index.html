@@ -941,26 +941,26 @@ function renderPayPalButton() {
           if (result.ok) {
             isPremium = true;
             updateTimerUI();
-            showToast('Subscription active! Enjoy unlimited listening.');
+            showToast('Subscription active! Enjoy unlimited listening.', 8000);
           } else {
             console.error('Subscription verify failed:', result.error);
-            showToast('Payment OK but verify failed: ' + (result.error || 'unknown'));
+            showToast('Payment OK but verify failed: ' + (result.error || 'unknown'), 8000);
           }
         }).catch(err => {
           console.error('Subscription verify error:', err);
-          showToast('Payment successful! Reload to activate.');
+          showToast('Payment successful! Reload to activate.', 8000);
         });
       } else {
-        showToast('Payment successful! Please sign in to activate.');
+        showToast('Payment successful! Please sign in to activate.', 8000);
       }
     },
     onCancel: function(data) {
       console.log('PayPal onCancel fired:', data);
-      showToast('Payment cancelled. Please try again.');
+      showToast('Payment cancelled. Please try again.', 6000);
     },
     onError: function(err) {
       console.error('PayPal error:', err);
-      showToast('Payment error: ' + (err && err.message ? err.message : 'unknown'));
+      showToast('Payment error: ' + (err && err.message ? err.message : 'unknown'), 8000);
     }
   }).render('#paypal-button-container');
 }
@@ -969,12 +969,12 @@ function renderPayPalButton() {
    TOAST
    ============================================================ */
 let toastTimeout;
-function showToast(msg) {
+function showToast(msg, duration) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.classList.remove('show'), 2800);
+  toastTimeout = setTimeout(() => t.classList.remove('show'), duration || 5000);
 }
 
 /* ============================================================
