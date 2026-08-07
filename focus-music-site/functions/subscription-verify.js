@@ -10,6 +10,8 @@
  * and PayPal Client Secret never leave Cloudflare.
  */
 
+// Build trigger: 2026-08-07 — force fresh deploy so Cloudflare picks up the functions/ directory
+
 export async function onRequestPost(context) {
   try {
     const body = await context.request.json();
