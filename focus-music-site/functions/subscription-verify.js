@@ -5,43 +5,62 @@
  * Receives { subscriptionID, uid } from frontend,
  * verifies the subscription with PayPal API,
  * then writes the subscription status to Firestore.
- *
- * This runs on the server, so the Firebase Service Account key
- * and PayPal Client Secret never leave Cloudflare.
  */
 
-// Build trigger: 2026-08-07 — force fresh deploy so Cloudflare picks up the functions/ directory
+// CORS headers shared across all responses
+const CORS_HEADERS = {
+  'Content-Type': 'application/json',
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+};
 
-export async function onRequestPost(context) {
+// Use onRequest (catch-all) to handle all methods in one place
+export async function onRequest(context) {
+  const { request, env } = context;
+  const method = request.method;
+
+  // Handle CORS preflight
+  if (method === 'OPTIONS') {
+    return new Response(null, { status: 204, headers: CORS_HEADERS });
+  }
+
+  // Only allow POST
+  if (method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: CORS_HEADERS,
+    });
+  }
+
   try {
-    const body = await context.request.json();
+    const body = await request.json();
     const { subscriptionID, uid } = body;
 
     if (!subscriptionID || !uid) {
       return new Response(JSON.stringify({ error: 'missing subscriptionID or uid' }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CORS_HEADERS,
       });
     }
 
-    // 1. Get PayPal access token (need this to call PayPal API)
-    const paypalToken = await getPayPalAccessToken(context.env.PAYPAL_CLIENT_SECRET);
+    // 1. Get PayPal access token
+    const paypalToken = await getPayPalAccessToken(env.PAYPAL_CLIENT_SECRET);
 
     // 2. Call PayPal API to get subscription details
     const subDetails = await getPayPalSubscription(subscriptionID, paypalToken);
 
     // 3. Only proceed if the subscription is actually active
     if (subDetails.status !== 'ACTIVE' && subDetails.status !== 'APPROVED') {
-      console.warn('Subscription not active:', subDetails.status);
       return new Response(JSON.stringify({ error: 'subscription not active', status: subDetails.status }), {
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: CORS_HEADERS,
       });
     }
 
     // 4. Write to Firestore — server-side, bypasses security rules
-    const serviceAccount = JSON.parse(context.env.FIREBASE_SERVICE_ACCOUNT);
-    const projectId = context.env.FIREBASE_PROJECT_ID;
+    const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+    const projectId = env.FIREBASE_PROJECT_ID;
 
     await writeSubscriptionToFirestore(serviceAccount, projectId, uid, {
       status: 'active',
@@ -51,13 +70,12 @@ export async function onRequestPost(context) {
     });
 
     return new Response(JSON.stringify({ ok: true }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
     });
   } catch (err) {
-    console.error('subscription-verify error:', err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' },
+      headers: CORS_HEADERS,
     });
   }
 }
@@ -69,7 +87,6 @@ async function getPayPalAccessToken(clientSecret) {
   // SANDBOX — for testing. Switch back to live Client ID after testing.
   const clientId = 'ASlGxYk4HDyZYbQeix-ZR83RijkdxjKuhiv2hDAZCp5RUjNnAD-LgM3ZfDKrKMo_yA3ayQUw6M2Wsf2A';
 
-  // PayPal OAuth2: Basic Auth with client_id:client_secret
   const auth = btoa(`${clientId}:${clientSecret}`);
 
   // SANDBOX — for testing. Switch back to https://api.paypal.com after testing.
@@ -115,7 +132,6 @@ async function getPayPalSubscription(subscriptionID, accessToken) {
 async function writeSubscriptionToFirestore(serviceAccount, projectId, uid, data) {
   const accessToken = await getFirebaseAccessToken(serviceAccount);
 
-  // Write to users/{uid} document, set the 'subscription' field
   const url =
     `https://firestore.googleapis.com/v1/projects/${projectId}` +
     `/databases/(default)/documents/users/${uid}`;
@@ -150,7 +166,6 @@ async function writeSubscriptionToFirestore(serviceAccount, projectId, uid, data
 
 /* ============================================================
    Firebase OAuth2 — Service Account JWT
-   (Same pattern as ipn-handler.js, self-contained)
    ============================================================ */
 async function getFirebaseAccessToken(serviceAccount) {
   const header = b64Url(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
