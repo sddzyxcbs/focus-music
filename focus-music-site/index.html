@@ -928,6 +928,8 @@ function renderPayPalButton() {
       });
     },
     onApprove: function(data, actions) {
+      console.log('PayPal onApprove fired:', data);
+      showToast('Processing payment...');
       if (currentUid) {
         // Call server function to verify & activate subscription
         fetch('/subscription-verify', {
@@ -935,13 +937,14 @@ function renderPayPalButton() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ subscriptionID: data.subscriptionID, uid: currentUid })
         }).then(res => res.json()).then(result => {
+          console.log('Verify result:', result);
           if (result.ok) {
             isPremium = true;
             updateTimerUI();
             showToast('Subscription active! Enjoy unlimited listening.');
           } else {
             console.error('Subscription verify failed:', result.error);
-            showToast('Payment successful! Reload to activate.');
+            showToast('Payment OK but verify failed: ' + (result.error || 'unknown'));
           }
         }).catch(err => {
           console.error('Subscription verify error:', err);
@@ -951,9 +954,13 @@ function renderPayPalButton() {
         showToast('Payment successful! Please sign in to activate.');
       }
     },
+    onCancel: function(data) {
+      console.log('PayPal onCancel fired:', data);
+      showToast('Payment cancelled. Please try again.');
+    },
     onError: function(err) {
       console.error('PayPal error:', err);
-      showToast('Payment error. Please try again.');
+      showToast('Payment error: ' + (err && err.message ? err.message : 'unknown'));
     }
   }).render('#paypal-button-container');
 }
