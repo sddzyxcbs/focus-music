@@ -73,11 +73,27 @@ export async function onRequest(context) {
       headers: CORS_HEADERS,
     });
   } catch (err) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    // DEBUG: return full error info to help diagnose
+    return new Response(JSON.stringify({
+      error: err.message,
+      stack: err.stack ? err.stack.split('\n').slice(0, 5) : null,
+      step: getErrorStep(err)
+    }), {
       status: 500,
       headers: CORS_HEADERS,
     });
   }
+}
+
+// Helper to identify which step failed
+function getErrorStep(err) {
+  const msg = err.message || '';
+  if (msg.includes('PayPal OAuth')) return 'paypal_oauth';
+  if (msg.includes('PayPal API')) return 'paypal_get_sub';
+  if (msg.includes('Firestore write')) return 'firestore_write';
+  if (msg.includes('Firebase OAuth')) return 'firebase_oauth';
+  if (msg.includes('JSON')) return 'env_parse_json';
+  return 'unknown';
 }
 
 /* ============================================================
