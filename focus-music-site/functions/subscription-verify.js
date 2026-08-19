@@ -59,7 +59,12 @@ export async function onRequest(context) {
     }
 
     // 4. Write to Firestore — server-side, bypasses security rules
-    const serviceAccount = JSON.parse(env.FIREBASE_SERVICE_ACCOUNT);
+    // Compatible with both env var names (legacy: "focusflow-music", standard: "FIREBASE_SERVICE_ACCOUNT")
+    const serviceAccountRaw = env.FIREBASE_SERVICE_ACCOUNT || env['focusflow-music'];
+    if (!serviceAccountRaw) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT env var missing (tried both names)');
+    }
+    const serviceAccount = JSON.parse(serviceAccountRaw);
     const projectId = env.FIREBASE_PROJECT_ID;
 
     await writeSubscriptionToFirestore(serviceAccount, projectId, uid, {
